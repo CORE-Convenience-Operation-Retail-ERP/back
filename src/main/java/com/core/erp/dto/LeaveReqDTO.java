@@ -16,7 +16,9 @@ public class LeaveReqDTO {
 
     private int reqId;
     private Integer empId; // FK (id만 관리)
-    private LocalDate reqDate;
+    private String startDate; // yyyy-MM-dd
+    private String endDate;   // yyyy-MM-dd
+    private Integer days;
     private String reqReason;
     private Integer reqStatus;
     private LocalDateTime createdAt;
@@ -27,7 +29,9 @@ public class LeaveReqDTO {
     public LeaveReqDTO(LeaveReqEntity entity) {
         this.reqId = entity.getReqId();
         this.empId = entity.getEmployee() != null ? entity.getEmployee().getEmpId() : null;
-        this.reqDate = entity.getReqDate();
+        this.startDate = entity.getStartDate() != null ? entity.getStartDate().toString() : null;
+        this.endDate = entity.getEndDate() != null ? entity.getEndDate().toString() : null;
+        this.days = entity.getDays();
         this.reqReason = entity.getReqReason();
         this.reqStatus = entity.getReqStatus();
         this.createdAt = entity.getCreatedAt();

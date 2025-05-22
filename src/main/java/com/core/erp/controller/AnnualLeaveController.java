@@ -81,11 +81,17 @@ public class AnnualLeaveController {
                 map.put("reqId", req.getReqId());
                 
                 // 날짜 필드 안전하게 처리
-                if (req.getReqDate() != null) {
-                    map.put("reqDate", req.getReqDate().format(DATE_FORMATTER));
+                if (req.getStartDate() != null) {
+                    map.put("startDate", req.getStartDate().format(DATE_FORMATTER));
                 } else {
-                    map.put("reqDate", null);
+                    map.put("startDate", null);
                 }
+                if (req.getEndDate() != null) {
+                    map.put("endDate", req.getEndDate().format(DATE_FORMATTER));
+                } else {
+                    map.put("endDate", null);
+                }
+                map.put("days", req.getDays());
                 
                 map.put("reqReason", req.getReqReason());
                 map.put("reqStatus", req.getReqStatus());
@@ -143,11 +149,17 @@ public class AnnualLeaveController {
                 map.put("reqId", req.getReqId());
                 
                 // 날짜 필드 안전하게 처리
-                if (req.getReqDate() != null) {
-                    map.put("reqDate", req.getReqDate().format(DATE_FORMATTER));
+                if (req.getStartDate() != null) {
+                    map.put("startDate", req.getStartDate().format(DATE_FORMATTER));
                 } else {
-                    map.put("reqDate", null);
+                    map.put("startDate", null);
                 }
+                if (req.getEndDate() != null) {
+                    map.put("endDate", req.getEndDate().format(DATE_FORMATTER));
+                } else {
+                    map.put("endDate", null);
+                }
+                map.put("days", req.getDays());
                 
                 map.put("reqReason", req.getReqReason());
                 map.put("reqStatus", req.getReqStatus());

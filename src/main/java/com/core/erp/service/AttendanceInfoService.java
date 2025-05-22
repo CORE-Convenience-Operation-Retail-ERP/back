@@ -235,32 +235,23 @@ public class AttendanceInfoService {
     /**
      * 연차 승인 시 연차 차감 처리
      * @param empId 직원 ID
+     * @param days 차감할 연차 일수
      * @return 처리 결과
      */
     @Transactional
-    public boolean deductAnnualLeave(int empId) {
-        // 직원 연차 정보 조회
+    public boolean deductAnnualLeave(int empId, int days) {
         Optional<AnnualLeaveEntity> leaveOpt = annualLeaveRepository.findTopByEmployee_EmpIdOrderByYearDesc(empId);
-        
         if (leaveOpt.isEmpty()) {
-            return false; // 연차 정보가 없음
+            return false;
         }
-        
         AnnualLeaveEntity annualLeave = leaveOpt.get();
-        
-        // 잔여 연차 확인
-        if (annualLeave.getRemDays() <= 0) {
-            return false; // 잔여 연차 부족
+        if (annualLeave.getRemDays() == null || annualLeave.getRemDays() < days) {
+            return false;
         }
-        
-        // 사용한 연차 증가, 잔여 연차 감소
-        annualLeave.setUsedDays(annualLeave.getUsedDays() + 1);
+        annualLeave.setUsedDays(annualLeave.getUsedDays() + days);
         annualLeave.setRemDays(annualLeave.getTotalDays() - annualLeave.getUsedDays());
         annualLeave.setUadateAt(LocalDateTime.now());
-        
-        // 연차 정보 업데이트
         annualLeaveRepository.save(annualLeave);
-        
         return true;
     }
 

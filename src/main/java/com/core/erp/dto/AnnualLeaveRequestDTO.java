@@ -15,5 +15,7 @@ public class AnnualLeaveRequestDTO {
     private Integer empId;
     // private String reason;
     private String reason;
-
+    private String startDate; // yyyy-MM-dd
+    private String endDate;   // yyyy-MM-dd
+    private Integer days;
 } 

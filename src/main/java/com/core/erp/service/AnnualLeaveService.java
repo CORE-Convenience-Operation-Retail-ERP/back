@@ -61,14 +61,16 @@ public class AnnualLeaveService {
             .orElseThrow(() -> new RuntimeException("연차 정보를 찾을 수 없습니다."));
 
         // 잔여 연차 확인
-        if (annualLeave.getRemDays() <= 0) {
-            throw new RuntimeException("잔여 연차가 없습니다.");
+        if (annualLeave.getRemDays() == null || annualLeave.getRemDays() < requestDTO.getDays()) {
+            throw new RuntimeException("잔여 연차가 부족합니다.");
         }
 
         // 연차 신청 생성
         LeaveReqEntity leaveReq = new LeaveReqEntity();
         leaveReq.setEmployee(employee);
-        leaveReq.setReqDate(LocalDate.now());
+        leaveReq.setStartDate(LocalDate.parse(requestDTO.getStartDate()));
+        leaveReq.setEndDate(LocalDate.parse(requestDTO.getEndDate()));
+        leaveReq.setDays(requestDTO.getDays());
         leaveReq.setReqReason(requestDTO.getReason());
         leaveReq.setReqStatus(0); // 0: 대기중
         leaveReq.setCreatedAt(LocalDateTime.now());
@@ -134,7 +136,7 @@ public class AnnualLeaveService {
             
             // 승인된 경우 연차 차감 처리
             if (approveStatus == 1) { // 1: 승인
-                attendanceInfoService.deductAnnualLeave(leaveReq.getEmployee().getEmpId());
+                attendanceInfoService.deductAnnualLeave(leaveReq.getEmployee().getEmpId(), leaveReq.getDays());
                 result.put("message", "연차가 승인되었습니다.");
                 // 알림 생성 (인사팀+MASTER 전체에게)
                 try {
@@ -444,7 +446,7 @@ public class AnnualLeaveService {
             // 상태 변경에 따른 처리
             if (statusChanged) {
                 if (newStatus == 1 && previousStatus != 1) { // 1: 승인으로 변경된 경우
-                    attendanceInfoService.deductAnnualLeave(leaveReq.getEmployee().getEmpId());
+                    attendanceInfoService.deductAnnualLeave(leaveReq.getEmployee().getEmpId(), leaveReq.getDays());
                     result.put("message", "연차가 승인되었습니다.");
                     // 알림 생성 (인사팀+MASTER 전체에게)
                     try {
