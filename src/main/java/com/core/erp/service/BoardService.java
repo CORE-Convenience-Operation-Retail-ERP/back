@@ -13,6 +13,7 @@ import com.core.erp.repository.TblBoardCommentsRepository;
 import com.core.erp.repository.TblBoardPostsRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Objects;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BoardService {
@@ -145,7 +147,7 @@ public class BoardService {
             List<EmployeeEntity> targets = new ArrayList<>();
             if (Objects.equals(dto.getBoardType(), 1)) {
                 // 공지사항: 본사 직원 전체(부서ID 4~10)
-                for (int deptId = 4; deptId <= 10; deptId++) {
+                for (int deptId = 3; deptId <= 10; deptId++) {
                     targets.addAll(employeeRepository.findByDepartment_DeptId(deptId));
                 }
             } else {
@@ -234,13 +236,38 @@ public class BoardService {
         entity.setComCreatedAt(LocalDateTime.now());
         
         TblBoardCommentsEntity savedEntity = boardCommentsRepository.save(entity);
-        
+
+        if ((post.getBoardType() == 2 || post.getBoardType() == 3) &&
+                post.getEmployee() != null &&
+                post.getEmployee().getEmpId() != employee.getEmpId()) {
+
+            try {
+                String content = "[게시판] 작성하신 글에 답변이 등록되었습니다.";
+                String link = switch (post.getBoardType()) {
+                    case 2 -> "/headquarters/board/suggestions";
+                    case 3 -> "/headquarters/board/store-inquiries";
+                    default -> "/";
+                };
+
+                notificationService.createNotification(
+                        post.getEmployee().getEmpId(),
+                        3,
+                        "BOARD_REPLY",
+                        "INFO",
+                        content,
+                        link
+                );
+            } catch (Exception e) {
+                log.error("[알림] 댓글 알림 생성 실패: {}", e.getMessage(), e);
+            }
+        }
+
         BoardCommentResponseDTO responseDTO = new BoardCommentResponseDTO(savedEntity);
         responseDTO.setEmpName(employee.getEmpName());
-        
+
         return responseDTO;
     }
-    
+
     // 관리자 권한 확인 (HQ_BR, HQ_BR_M, MASTER)
     private boolean isManagerRole(EmployeeEntity employee) {
         if (employee.getDepartment() == null) return false;
