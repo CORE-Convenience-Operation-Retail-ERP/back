@@ -2020,3 +2020,175 @@ INSERT INTO stock_flow (
       (1, 7, 5, 2, 10, 8, '창고', '반품 회수', 'admin', NOW()),
       (1, 1, 0, 20, 49, 69, '창고', '추가 입고', 'admin', NOW());
 
+-- 일일정산
+INSERT INTO sales_settlement
+(store_id, settlement_date, start_date, end_date, total_revenue, discount_total, refund_total,
+ final_amount, settlement_type, transaction_count, refund_count, is_manual, created_at, updated_at)
+SELECT
+    tx.store_id,
+    tx.txn_date           AS settlement_date,
+    tx.txn_date           AS start_date,
+    tx.txn_date           AS end_date,
+    SUM(tx.total_price)   AS total_revenue,
+    SUM(tx.discount_total)AS discount_total,
+    SUM(COALESCE(tx.refund_amount,0)) AS refund_total,
+    SUM(tx.final_amount)  AS final_amount,
+    'DAILY'               AS settlement_type,
+    COUNT(*)              AS transaction_count,
+    SUM(CASE WHEN tx.refund_amount>0 THEN 1 ELSE 0 END) AS refund_count,
+    0                     AS is_manual,
+    MAX(tx.paid_at)       AS created_at,
+    MAX(tx.paid_at)       AS updated_at
+FROM (
+         SELECT
+             store_id,
+             DATE(paid_at)    AS txn_date,
+             total_price,
+             discount_total,
+             final_amount,
+             refund_amount,
+             paid_at
+         FROM sales_transaction
+     ) AS tx
+GROUP BY tx.store_id, tx.txn_date;
+
+-- 교대별(파트타이머별·일자별) 수동 정산
+INSERT INTO sales_settlement
+(store_id,
+ part_timer_id,
+ settlement_date,
+ start_date,
+ end_date,
+ shift_start_time,
+ shift_end_time,
+ total_revenue,
+ discount_total,
+ refund_total,
+ final_amount,
+ settlement_type,
+ transaction_count,
+ refund_count,
+ is_manual,
+ created_at,
+ updated_at)
+SELECT
+    tx.store_id,
+    tx.part_timer_id,
+    tx.txn_date                             AS settlement_date,
+    tx.txn_date                             AS start_date,
+    tx.txn_date                             AS end_date,
+    MIN(tx.paid_at)                         AS shift_start_time,
+    MAX(tx.paid_at)                         AS shift_end_time,
+    SUM(tx.total_price)                     AS total_revenue,
+    SUM(tx.discount_total)                  AS discount_total,
+    SUM(COALESCE(tx.refund_amount,0))       AS refund_total,
+    SUM(tx.final_amount)                    AS final_amount,
+    'SHIFT'                                 AS settlement_type,
+    COUNT(*)                                AS transaction_count,
+    SUM(CASE WHEN tx.refund_amount>0 THEN 1 ELSE 0 END) AS refund_count,
+    1                                       AS is_manual,      -- 수동 정산 표시
+    MAX(tx.paid_at)                         AS created_at,
+    MAX(tx.paid_at)                         AS updated_at
+FROM (
+         SELECT
+             store_id,
+             part_timer_id,
+             DATE(paid_at)    AS txn_date,
+             total_price,
+             discount_total,
+             final_amount,
+             refund_amount,
+             paid_at
+         FROM sales_transaction
+     ) AS tx
+GROUP BY tx.store_id, tx.part_timer_id, tx.txn_date;
+
+-- 월별 정산
+INSERT INTO sales_settlement
+(store_id,
+ settlement_date,
+ start_date,
+ end_date,
+ total_revenue,
+ discount_total,
+ refund_total,
+ final_amount,
+ settlement_type,
+ transaction_count,
+ refund_count,
+ is_manual,
+ created_at,
+ updated_at)
+SELECT
+    tx.store_id,
+    LAST_DAY(tx.txn_month)     AS settlement_date,
+    tx.txn_month               AS start_date,
+    LAST_DAY(tx.txn_month)     AS end_date,
+    SUM(tx.total_price)        AS total_revenue,
+    SUM(tx.discount_total)     AS discount_total,
+    SUM(COALESCE(tx.refund_amount,0)) AS refund_total,
+    SUM(tx.final_amount)       AS final_amount,
+    'MONTHLY'                  AS settlement_type,
+    COUNT(*)                   AS transaction_count,
+    SUM(CASE WHEN tx.refund_amount>0 THEN 1 ELSE 0 END) AS refund_count,
+    0                          AS is_manual,
+    MAX(tx.paid_at)            AS created_at,
+    MAX(tx.paid_at)            AS updated_at
+FROM (
+         SELECT
+             store_id,
+             DATE_FORMAT(paid_at, '%Y-%m-01') AS txn_month,
+             total_price,
+             discount_total,
+             final_amount,
+             refund_amount,
+             paid_at
+         FROM sales_transaction
+     ) AS tx
+GROUP BY tx.store_id, tx.txn_month;
+
+-- 연별 정산
+INSERT INTO sales_settlement
+(store_id,
+ settlement_date,
+ start_date,
+ end_date,
+ total_revenue,
+ discount_total,
+ refund_total,
+ final_amount,
+ settlement_type,
+ transaction_count,
+ refund_count,
+ is_manual,
+ created_at,
+ updated_at)
+SELECT
+    tx.store_id,
+    CAST(CONCAT(tx.txn_year, '-12-31') AS DATE) AS settlement_date,
+    CAST(CONCAT(tx.txn_year, '-01-01') AS DATE) AS start_date,
+    CAST(CONCAT(tx.txn_year, '-12-31') AS DATE) AS end_date,
+    SUM(tx.total_price)        AS total_revenue,
+    SUM(tx.discount_total)     AS discount_total,
+    SUM(COALESCE(tx.refund_amount,0)) AS refund_total,
+    SUM(tx.final_amount)       AS final_amount,
+    'YEARLY'                   AS settlement_type,
+    COUNT(*)                   AS transaction_count,
+    SUM(CASE WHEN tx.refund_amount>0 THEN 1 ELSE 0 END) AS refund_count,
+    0                          AS is_manual,
+    MAX(tx.paid_at)            AS created_at,
+    MAX(tx.paid_at)            AS updated_at
+FROM (
+         SELECT
+             store_id,
+             YEAR(paid_at)    AS txn_year,
+             total_price,
+             discount_total,
+             final_amount,
+             refund_amount,
+             paid_at
+         FROM sales_transaction
+     ) AS tx
+GROUP BY tx.store_id, tx.txn_year;
+
+

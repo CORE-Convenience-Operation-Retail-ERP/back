@@ -11,24 +11,33 @@ import java.util.List;
 @Repository
 public interface SalesSettleRepository extends JpaRepository<SalesSettleEntity, Integer> {
 
-    // 날짜 + type 여러 개 (ALL에 날짜 있을 때 사용)
+    // 날짜 + 타입 목록 조회 (기간 조건이 있을 때 사용)
+
     List<SalesSettleEntity> findByStore_StoreIdAndSettlementDateBetweenAndSettlementTypeIn(
-            Integer storeId, LocalDate startDate, LocalDate endDate, List<SettlementType> types
+            Integer storeId,
+            LocalDate startDate,
+            LocalDate endDate,
+            List<SettlementType> types
     );
 
-    // 날짜 + type 하나
-    List<SalesSettleEntity> findByStore_StoreIdAndSettlementDateBetweenAndSettlementType(
-            Integer storeId, LocalDate startDate, LocalDate endDate, SettlementType type
-    );
-
-    // 날짜 없이 type 여러 개 (ALL + 전체 날짜 조회)
+    // 타입 목록 조회 (기간 조건이 없을 때 사용)
     List<SalesSettleEntity> findByStore_StoreIdAndSettlementTypeIn(
-            Integer storeId, List<SettlementType> types
+            Integer storeId,
+            List<SettlementType> types
     );
 
-    // 날짜 없이 type 하나 (DAILY, SHIFT 중 하나, 전체 날짜 조회)
-    List<SalesSettleEntity> findByStore_StoreIdAndSettlementType(
-            Integer storeId, SettlementType type
+    // 기간 내, 여러 SettlementType 조회 + 날짜 오름차순 정렬
+    List<SalesSettleEntity> findByStore_StoreIdAndSettlementDateBetweenAndSettlementTypeInOrderBySettlementDateAsc(
+            Integer storeId,
+            LocalDate startDate,
+            LocalDate endDate,
+            List<SettlementType> types
+    );
+
+    // 전체 기간, 여러 SettlementType 조회 + 날짜 오름차순 정렬
+    List<SalesSettleEntity> findByStore_StoreIdAndSettlementTypeInOrderBySettlementDateAsc(
+            Integer storeId,
+            List<SettlementType> types
     );
 }
 

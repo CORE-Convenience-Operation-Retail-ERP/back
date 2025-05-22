@@ -25,8 +25,26 @@ public class SalesSettleEntity {
     @JoinColumn(name = "store_id", nullable = false)
     private StoreEntity store;
 
+    @Column(name = "emp_id")
+    private Integer empId;
+
+    @Column(name = "part_timer_id")
+    private Integer partTimerId;
+
     @Column(name = "settlement_date", nullable = false)
     private LocalDate settlementDate;
+
+    @Column(name = "start_date")
+    private LocalDate startDate;
+
+    @Column(name = "end_date")
+    private LocalDate endDate;
+
+    @Column(name = "shift_start_time")
+    private LocalDateTime shiftStartTime;
+
+    @Column(name = "shift_end_time")
+    private LocalDateTime shiftEndTime;
 
     @Column(name = "total_revenue", nullable = false)
     private Integer totalRevenue;
@@ -50,6 +68,9 @@ public class SalesSettleEntity {
     @Column(name = "refund_count")
     private Integer refundCount;
 
+    @Column(name = "is_manual")
+    private Integer isManual;
+
     @Column(name = "hq_sent_at")
     private LocalDateTime hqSentAt;
 
@@ -64,19 +85,26 @@ public class SalesSettleEntity {
     private LocalDateTime updatedAt;
 
     public enum SettlementType {
-        DAILY, MONTHLY, YEARLY, SHIFT;
-
+        DAILY, MONTHLY, YEARLY, SHIFT
     }
 
     public enum HqStatus {
         PENDING, SENT, FAILED
     }
 
-    // DTO → Entity 변환 생성자
+    /**
+     * DTO → Entity 변환 생성자
+     */
     public SalesSettleEntity(SalesSettleDTO dto, StoreEntity storeEntity) {
         this.settlementId = dto.getSettlementId();
         this.store = storeEntity;
+        this.empId = dto.getEmpId();
+        this.partTimerId = dto.getPartTimerId();
         this.settlementDate = dto.getSettlementDate();
+        this.startDate = dto.getStartDate();
+        this.endDate = dto.getEndDate();
+        this.shiftStartTime = dto.getShiftStartTime();
+        this.shiftEndTime = dto.getShiftEndTime();
         this.totalRevenue = dto.getTotalRevenue();
         this.discountTotal = dto.getDiscountTotal();
         this.refundTotal = dto.getRefundTotal();
@@ -84,6 +112,7 @@ public class SalesSettleEntity {
         this.settlementType = dto.getSettlementType();
         this.transactionCount = dto.getTransactionCount();
         this.refundCount = dto.getRefundCount();
+        this.isManual = dto.getIsManual();
         this.hqSentAt = dto.getHqSentAt();
         this.hqStatus = dto.getHqStatus();
         this.createdAt = dto.getCreatedAt();

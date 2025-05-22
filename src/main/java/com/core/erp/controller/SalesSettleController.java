@@ -9,6 +9,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -26,15 +28,21 @@ public class SalesSettleController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(required = false) String type
     ) {
-        // type이 null이거나 "ALL"이면 DAILY + SHIFT 전체 조회
+        // ALL 또는 type 미지정 시 모든 SettlementType을 리스트로 넘겨 조회
         if (type == null || type.trim().isEmpty() || type.equalsIgnoreCase("ALL")) {
-            return salesSettleService.getSettlements(storeId, startDate, endDate, null);
+            List<SettlementType> allTypes = Arrays.asList(SettlementType.values());
+            return salesSettleService.getSettlements(storeId, startDate, endDate, allTypes);
         }
 
-        // 나머지는 enum으로 변환해서 전달
+        // 특정 타입 조회
         try {
             SettlementType enumType = SettlementType.valueOf(type.toUpperCase());
-            return salesSettleService.getSettlements(storeId, startDate, endDate, enumType);
+            return salesSettleService.getSettlements(
+                    storeId,
+                    startDate,
+                    endDate,
+                    Collections.singletonList(enumType)
+            );
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("잘못된 정산 유형입니다: " + type);
         }
