@@ -19,4 +19,5 @@ public class ProductRegisterRequestDTO {
     private String shelfLife;
     private String allergens;
     private String storageMethod;
+    private Integer isPromo; // 0:판매중, 1:단종, 2:1+1, 3:2+1
 }

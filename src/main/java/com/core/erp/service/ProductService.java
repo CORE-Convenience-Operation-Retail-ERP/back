@@ -352,7 +352,7 @@ public class ProductService {
         product.setProCost(dto.getProCost());
         product.setProSellCost(dto.getProSellCost());
         product.setProStockLimit(dto.getProStockLimit() != null ? dto.getProStockLimit() : 0);
-        product.setIsPromo(0); // 기본값: 판매중
+        product.setIsPromo(dto.getIsPromo() != null ? dto.getIsPromo() : 0); // 상태값 반영
         product.setProImage(null); // 일단 null, 아래에서 처리
         product.setCategory(categoryRepository.findById(dto.getCategoryId()).orElseThrow());
         product.setProCreatedAt(java.time.LocalDateTime.now());
