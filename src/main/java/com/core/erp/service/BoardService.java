@@ -131,7 +131,7 @@ public class BoardService {
         // 알림 생성 코드 추가
         System.out.println("[알림] 게시글 등록 알림 코드 진입");
         try {
-            String link = "/headquarters/board/notice"; // 기본값: 공지사항
+            String link = "/headquarters/board/notice";
             String postTypeLabel = "게시글";
             if (Objects.equals(dto.getBoardType(), 1)) { // 공지사항
                 link = "/headquarters/board/notice";
@@ -139,9 +139,9 @@ public class BoardService {
             } else if (Objects.equals(dto.getBoardType(), 2)) { // 건의사항
                 link = "/headquarters/board/suggestions";
                 postTypeLabel = "건의사항";
-            } else if (Objects.equals(dto.getBoardType(), 3)) { // 점포 문의 사항
+            } else if (Objects.equals(dto.getBoardType(), 3)) { // 문의사항
                 link = "/headquarters/board/store-inquiries";
-                postTypeLabel = "점포 문의 사항";
+                postTypeLabel = "문의사항";
             }
             String contentMsg = String.format("[게시판] %s 글이 등록되었습니다.", postTypeLabel);
             List<EmployeeEntity> targets = new ArrayList<>();
@@ -244,12 +244,12 @@ public class BoardService {
 
             try {
                 String content = "[게시판] 작성하신 글에 답변이 등록되었습니다.";
-                String link = switch (post.getBoardType()) {
-                    case 2 -> "/headquarters/board/suggestions";
-                    case 3 -> "/headquarters/board/store-inquiries";
-                    default -> "/";
-                };
-
+                String link = "/";
+                if (post.getBoardType() == 2) {
+                    link = "/headquarters/board/suggestions";
+                } else if (post.getBoardType() == 3) {
+                    link = "/headquarters/board/store-inquiries";
+                }
                 notificationService.createNotification(
                         post.getEmployee().getEmpId(),
                         3,
