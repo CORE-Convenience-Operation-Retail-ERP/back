@@ -10,6 +10,7 @@ import com.core.erp.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -45,13 +46,32 @@ public class BoardController {
             @RequestBody TblBoardPostsDTO dto,
             Authentication authentication) {
 
-        // CustomPrincipal 객체에서 loginId 추출
         String loginId;
         if (authentication.getPrincipal() instanceof CustomPrincipal) {
             CustomPrincipal principal = (CustomPrincipal) authentication.getPrincipal();
             loginId = principal.getLoginId();
         } else {
             loginId = authentication.getName();
+        }
+
+        // 권한 체크
+        boolean isStore = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_STORE"));
+        boolean isHqBr = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_HQ_BR"));
+        boolean isMaster = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_MASTER"));
+
+        int boardType = dto.getBoardType(); // DTO에 boardType 필드가 있다고 가정
+
+        // STORE 권한은 건의사항(2), 지점문의(3)만 작성 가능
+        if (isStore && !(boardType == 2 || boardType == 3)) {
+            throw new AccessDeniedException("점주는 건의사항/지점문의만 작성할 수 있습니다.");
+        }
+        // HQ_BR, MASTER는 모든 게시판 작성 가능 (추가 체크 필요 없음)
+        // 그 외 권한은 작성 불가
+        if (!isStore && !isHqBr && !isMaster) {
+            throw new AccessDeniedException("작성 권한이 없습니다.");
         }
 
         return ResponseEntity.ok(boardService.createBoardPost(dto, loginId));
