@@ -160,6 +160,8 @@ public class PartTimeService {
         entity.setPartStatus(partTimerDTO.getPartStatus());
         entity.setPosition(partTimerDTO.getPosition());
         entity.setWorkType(partTimerDTO.getWorkType());
+        entity.setDeviceId(partTimerDTO.getDeviceId());
+        entity.setDeviceName(partTimerDTO.getDeviceName());
 
         if (partTimerDTO.getFile() != null && !partTimerDTO.getFile().isEmpty()) {
             String uploadedPath = uploadFile(partTimerDTO.getFile());

@@ -62,5 +62,6 @@ public interface PartTimerRepository extends JpaRepository<PartTimerEntity, Inte
 
     Optional<PartTimerEntity> findByDeviceId(String deviceId);
 
+    boolean existsByPartPhone(String empPhone);
 }
 

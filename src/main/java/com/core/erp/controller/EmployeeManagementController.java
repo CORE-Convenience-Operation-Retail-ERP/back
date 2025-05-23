@@ -2,10 +2,12 @@ package com.core.erp.controller;
 
 import com.core.erp.domain.DepartmentEntity;
 import com.core.erp.domain.EmployeeEntity;
+import com.core.erp.domain.PartTimerEntity;
 import com.core.erp.domain.StoreEntity;
 import com.core.erp.dto.employee.EmployeeManagementDTO;
 import com.core.erp.repository.DepartmentRepository;
 import com.core.erp.repository.EmployeeRepository;
+import com.core.erp.repository.PartTimerRepository;
 import com.core.erp.repository.StoreRepository;
 import com.core.erp.service.EmployeeManagementService;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,7 @@ public class EmployeeManagementController {
     private final StoreRepository storeRepository;
     private final EmployeeRepository employeeRepository;
     private final DepartmentRepository departmentRepository;
+    private final PartTimerRepository partTimerRepository;
 
     // 직원 관리 API
     @GetMapping("/api/employee-management/{empId}")
@@ -118,7 +121,26 @@ public class EmployeeManagementController {
             resultDTO.setDeptCode(updatedEmployee.getDepartment().getDeptName());
             resultDTO.setDeptName(updatedEmployee.getDepartment().getDeptName());
         }
-        
+
+        if (!partTimerRepository.existsByPartPhone(updatedEmployee.getEmpPhone())) {
+            PartTimerEntity newPartTimer = new PartTimerEntity();
+            newPartTimer.setStore(updatedEmployee.getStore());
+            newPartTimer.setPosition("점주");
+            newPartTimer.setWorkType("정규");
+            newPartTimer.setPartName(updatedEmployee.getEmpName());
+            newPartTimer.setPartGender(updatedEmployee.getEmpGender());
+            newPartTimer.setPartPhone(updatedEmployee.getEmpPhone());
+            newPartTimer.setPartAddress(updatedEmployee.getEmpAddr());
+            newPartTimer.setBirthDate(LocalDate.parse(updatedEmployee.getEmpBirth()));
+            newPartTimer.setHireDate(updatedEmployee.getHireDate());
+            newPartTimer.setSalaryType(1);
+            newPartTimer.setAccountBank(String.valueOf(updatedEmployee.getEmpBank()));
+            newPartTimer.setAccountNumber(updatedEmployee.getEmpAcount());
+            newPartTimer.setPartStatus(1);
+            newPartTimer.setPartImg(updatedEmployee.getEmpImg());
+
+            partTimerRepository.save(newPartTimer);
+        }
         return ResponseEntity.ok(resultDTO);
     }
     
