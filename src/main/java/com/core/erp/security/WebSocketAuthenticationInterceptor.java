@@ -74,14 +74,14 @@ public class WebSocketAuthenticationInterceptor implements ChannelInterceptor {
         Object principal = authentication.getPrincipal();
         if (principal instanceof CustomPrincipal) {
             Integer deptId = ((CustomPrincipal) principal).getDeptId();
-            return deptId != null && deptId >= 4 && deptId <= 10;
+            return deptId != null && deptId >= 3 && deptId <= 10;
         }
         
         // 권한 기반 확인 (대체 방법)
         return authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .anyMatch(auth -> 
-                    auth.equals("ROLE_HQ") || 
+                    auth.equals("ROLE_HQ_HRM") || 
                     auth.equals("ROLE_HQ_PRO") || 
                     auth.equals("ROLE_HQ_BR") || 
                     auth.equals("ROLE_MASTER"));

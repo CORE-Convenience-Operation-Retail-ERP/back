@@ -45,11 +45,12 @@ public class NotificationEntity {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     
-    private boolean isRead;
+    @Column(name = "is_read")
+    private boolean read;
     
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
-        this.isRead = false;
+        this.read = false;
     }
 } 

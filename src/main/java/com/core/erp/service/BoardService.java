@@ -164,7 +164,8 @@ public class BoardService {
                 notificationService.createNotification(
                     target.getEmpId(),
                     Objects.equals(dto.getBoardType(), 1) ? null : 8,
-                    "BOARD_POST",
+                    // 공지사항이면 'NOTICE', 아니면 'BOARD_POST'
+                    Objects.equals(dto.getBoardType(), 1) ? "NOTICE" : "BOARD_POST",
                     "INFO",
                     contentMsg,
                     link
@@ -252,7 +253,7 @@ public class BoardService {
                 notificationService.createNotification(
                         post.getEmployee().getEmpId(),
                         3,
-                        "BOARD_REPLY",
+                        "STORE_INQUIRY_REPLY",
                         "INFO",
                         content,
                         link

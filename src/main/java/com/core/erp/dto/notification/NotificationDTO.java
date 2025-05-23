@@ -22,7 +22,7 @@ public class NotificationDTO {
     private String content;
     private String link;
     private LocalDateTime createdAt;
-    private boolean isRead;
+    private boolean read;
     
     // NotificationEntity를 NotificationDTO로 변환하는 정적 메서드
     public static NotificationDTO fromEntity(NotificationEntity entity) {
@@ -36,7 +36,7 @@ public class NotificationDTO {
                 .content(entity.getContent())
                 .link(entity.getLink())
                 .createdAt(entity.getCreatedAt())
-                .isRead(entity.isRead())
+                .read(entity.isRead())
                 .build();
     }
 } 

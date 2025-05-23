@@ -31,7 +31,7 @@ public class NotificationController {
     public ResponseEntity<List<NotificationDTO>> getNotifications(
             Authentication authentication,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(defaultValue = "100") int size) {
             
         CustomPrincipal principal = (CustomPrincipal) authentication.getPrincipal();
         List<NotificationDTO> notifications = notificationService.getUserNotifications(principal.getEmpId(), page, size);
@@ -201,5 +201,15 @@ public class NotificationController {
         String link = (String) payload.get("link");
         
         notificationService.createNotification(principal.getEmpId(), type, content, link);
+    }
+
+    /**
+     * 전체 알림(읽은 것 포함, 페이징 없이) 조회
+     */
+    @GetMapping("/all")
+    public ResponseEntity<List<NotificationDTO>> getAllNotifications(Authentication authentication) {
+        CustomPrincipal principal = (CustomPrincipal) authentication.getPrincipal();
+        List<NotificationDTO> notifications = notificationService.getUserNotificationsAll(principal.getEmpId());
+        return ResponseEntity.ok(notifications);
     }
 } 

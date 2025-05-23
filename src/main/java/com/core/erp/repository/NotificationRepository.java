@@ -16,13 +16,13 @@ public interface NotificationRepository extends JpaRepository<NotificationEntity
     List<NotificationEntity> findByUserOrderByCreatedAtDesc(EmployeeEntity user);
     
     // 특정 사용자의 읽지 않은 알림 목록 조회
-    List<NotificationEntity> findByUserAndIsReadFalseOrderByCreatedAtDesc(EmployeeEntity user);
+    List<NotificationEntity> findByUserAndReadFalseOrderByCreatedAtDesc(EmployeeEntity user);
     
     // 특정 사용자의 알림 페이지네이션 조회
     List<NotificationEntity> findByUserOrderByCreatedAtDesc(EmployeeEntity user, Pageable pageable);
     
     // 읽지 않은 알림 개수 조회
-    long countByUserAndIsReadFalse(EmployeeEntity user);
+    long countByUserAndReadFalse(EmployeeEntity user);
     
     // 특정 부서의 알림 목록 조회
     List<NotificationEntity> findByTargetDeptIdOrderByCreatedAtDesc(Integer targetDeptId, Pageable pageable);
@@ -31,8 +31,8 @@ public interface NotificationRepository extends JpaRepository<NotificationEntity
     List<NotificationEntity> findByEventTypeOrderByCreatedAtDesc(String eventType, Pageable pageable);
     
     // 특정 부서의 읽지 않은 알림 개수 조회
-    long countByTargetDeptIdAndIsReadFalse(Integer targetDeptId);
+    long countByTargetDeptIdAndReadFalse(Integer targetDeptId);
     
     // 특정 이벤트 유형의 읽지 않은 알림 개수 조회
-    long countByEventTypeAndIsReadFalse(String eventType);
+    long countByEventTypeAndReadFalse(String eventType);
 } 

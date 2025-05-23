@@ -52,9 +52,19 @@ public class NotificationService {
             }
             log.info("[알림 생성] 사용자 조회 성공: empId={}, empName={}, departId={}", user.getEmpId(), user.getEmpName(), user.getDepartment() != null ? user.getDepartment().getDeptId() : null);
             Integer deptId = user.getDepartment() != null ? user.getDepartment().getDeptId() : null;
-            if (deptId == null || deptId < 4 || deptId > 10) {
-                log.error("[알림 생성] 부서 ID 제한으로 알림 생성 실패: deptId={}", deptId);
-                throw new RuntimeException("본사 직원만 알림을 받을 수 있습니다.");
+            // eventType별 부서 허용 정책 분기
+            if (eventType != null && (eventType.equals("NOTICE") || eventType.equals("STORE_INQUIRY_REPLY"))) {
+                // 공지사항, 점주 문의글 답변 알림은 3~10번 부서 허용
+                if (deptId == null || deptId < 3 || deptId > 10) {
+                    log.error("[알림 생성] 부서 ID 제한으로 알림 생성 실패: deptId={}", deptId);
+                    throw new RuntimeException("알림을 받을 수 없는 부서입니다.");
+                }
+            } else {
+                // 그 외 알림은 4~10번 부서만 허용
+                if (deptId == null || deptId < 4 || deptId > 10) {
+                    log.error("[알림 생성] 부서 ID 제한으로 알림 생성 실패: deptId={}", deptId);
+                    throw new RuntimeException("본사 직원만 알림을 받을 수 있습니다.");
+                }
             }
             NotificationEntity notification = NotificationEntity.builder()
                     .user(user)
@@ -152,7 +162,7 @@ public class NotificationService {
         EmployeeEntity user = employeeRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
         
-        return notificationRepository.findByUserAndIsReadFalseOrderByCreatedAtDesc(user)
+        return notificationRepository.findByUserAndReadFalseOrderByCreatedAtDesc(user)
                 .stream()
                 .map(NotificationDTO::fromEntity)
                 .collect(Collectors.toList());
@@ -206,14 +216,13 @@ public class NotificationService {
     public void markAsRead(Long notificationId, Integer userId) {
         NotificationEntity notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new RuntimeException("알림을 찾을 수 없습니다."));
-        
         // 요청한 사용자가 알림의 소유자인지 확인
         if (notification.getUser().getEmpId() != userId) {
             throw new RuntimeException("다른 사용자의 알림을 읽음 처리할 수 없습니다.");
         }
-        
         notification.setRead(true);
         notificationRepository.save(notification);
+        System.out.println("[알림 읽음 처리] notificationId=" + notificationId + ", read=" + notification.isRead());
     }
 
     /**
@@ -225,7 +234,7 @@ public class NotificationService {
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
         
         List<NotificationEntity> unreadNotifications = 
-                notificationRepository.findByUserAndIsReadFalseOrderByCreatedAtDesc(user);
+                notificationRepository.findByUserAndReadFalseOrderByCreatedAtDesc(user);
         
         unreadNotifications.forEach(notification -> notification.setRead(true));
         notificationRepository.saveAll(unreadNotifications);
@@ -239,6 +248,17 @@ public class NotificationService {
         EmployeeEntity user = employeeRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
         
-        return notificationRepository.countByUserAndIsReadFalse(user);
+        return notificationRepository.countByUserAndReadFalse(user);
+    }
+
+    // 전체 알림 반환 (페이징 없이)
+    @Transactional(readOnly = true)
+    public List<NotificationDTO> getUserNotificationsAll(Integer userId) {
+        EmployeeEntity user = employeeRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+        return notificationRepository.findByUserOrderByCreatedAtDesc(user)
+                .stream()
+                .map(NotificationDTO::fromEntity)
+                .collect(Collectors.toList());
     }
 } 
