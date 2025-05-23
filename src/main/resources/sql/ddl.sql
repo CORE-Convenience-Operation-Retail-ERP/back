@@ -38,32 +38,6 @@ CREATE TABLE `category` (
                             ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE `ai_model` (
-                            `model_id` INT NOT NULL COMMENT '모델 ID',
-                            `ai_name` VARCHAR(100) NOT NULL COMMENT '모델 이름',
-                            `ai_type` VARCHAR(50) NOT NULL COMMENT '모델 유형',
-                            `ai_version` VARCHAR(20) NOT NULL COMMENT '버전',
-                            `ai_parameters` JSON NULL COMMENT '모델 파라미터',
-                            `ai_accuracy` DECIMAL(5,2) NULL COMMENT '정확도',
-                            `ai_training_date` DATETIME NULL COMMENT '학습 날짜',
-                            `ai_is_active` BOOLEAN NULL DEFAULT TRUE COMMENT '활성화 여부',
-                            `ai_created_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성 시간',
-                            `ai_updated_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP COMMENT '수정 시간',
-                            PRIMARY KEY (`model_id`)
-);
-
-CREATE TABLE `weather_data` (
-                                `weather_id` INT NOT NULL COMMENT '날씨 데이터 ID',
-                                `wt_location` VARCHAR(100) NOT NULL COMMENT '위치',
-                                `wt_date` DATE NOT NULL COMMENT '날짜',
-                                `wt_temperature` DECIMAL(5,2) NOT NULL COMMENT '평균 온도',
-                                `wt_condition` VARCHAR(50) NOT NULL COMMENT '날씨 상태',
-                                `wt_humidity` INT NULL COMMENT '습도',
-                                `wt_precipitation` DECIMAL(5,2) NULL COMMENT '강수량',
-                                `wt_created_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성 시간',
-                                PRIMARY KEY (`weather_id`)
-);
-
 -- 2. 1차 의존성 테이블
 CREATE TABLE `employee` (
                             `emp_id` INT NOT NULL COMMENT '사원 고유 번호',
@@ -337,33 +311,6 @@ CREATE TABLE `demand_prediction` (
                                      FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`)
 );
 
-CREATE TABLE `anomaly_detection` (
-                                     `anomaly_id` INT NOT NULL COMMENT '이상 ID',
-                                     `store_id` int NOT NULL COMMENT '매장고유번호',
-                                     `anom_type` VARCHAR(50) NOT NULL COMMENT '이상 유형',
-                                     `anom_detection_time` DATETIME NOT NULL COMMENT '탐지 시간',
-                                     `anom_severity` TINYINT NOT NULL COMMENT '심각도 (1-5)',
-                                     `anom_description` TEXT NOT NULL COMMENT '설명',
-                                     `anom_is_resolved` TINYINT NULL DEFAULT 0 COMMENT '0 : 실패, 2 성공',
-                                     `anom_resolution_notes` TEXT NULL COMMENT '해결 노트',
-                                     `anom_created_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성 시간',
-                                     `anom_updated_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP COMMENT '수정 시간',
-                                     PRIMARY KEY (`anomaly_id`),
-                                     FOREIGN KEY (`store_id`) REFERENCES `store` (`store_id`)
-);
-
-CREATE TABLE `issue_log` (
-                             `issue_id` int NOT NULL COMMENT '개별 이슈 고유 ID',
-                             `product_id` int NULL COMMENT 'autoincrement',
-                             `store_id` int NOT NULL COMMENT '매장고유번호',
-                             `issue_title` varchar(50) NOT NULL COMMENT 'ex) 재고부족, 발주지연',
-                             `issue_desc` varchar(225) NOT NULL COMMENT '이슈 설명',
-                             `issue_type` varchar(30) NOT NULL COMMENT '재고, 유통기한, 발주 등',
-                             `created_at` datetime NOT NULL COMMENT '이슈가 등록된 시간',
-                             PRIMARY KEY (`issue_id`),
-                             FOREIGN KEY (`store_id`) REFERENCES `store` (`store_id`),
-                             FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`)
-);
 
 CREATE TABLE `annual_leave` (
                                 `leave_id` INT NOT NULL COMMENT '연차번호',

@@ -97,27 +97,6 @@ INSERT INTO `category` (`category_id`, `category_name`, `category_filter`, `pare
 (32, '콜라', 3, 13),
 (33, '사이다', 3, 13);
 
--- 4. ai_model(AI 모델) 데이터
-INSERT INTO `ai_model` (`model_id`, `ai_name`, `ai_type`, `ai_version`, `ai_parameters`, `ai_accuracy`, `ai_training_date`, `ai_is_active`, `ai_created_at`, `ai_updated_at`) VALUES
-(1, '재고예측모델', '시계열예측', '1.0.0', '{"learning_rate": 0.01, "layers": 3, "hidden_units": 64}', 87.5, '2023-05-15 00:00:00', TRUE, '2023-05-15 12:30:00', '2023-05-15 12:30:00'),
-(2, '판매량예측모델', '회귀분석', '2.1.0', '{"algorithm": "random_forest", "max_depth": 10, "n_estimators": 100}', 92.3, '2023-06-20 00:00:00', TRUE, '2023-06-20 14:45:00', '2023-07-15 09:30:00'),
-(3, '이상감지모델', '이상탐지', '1.5.0', '{"threshold": 0.85, "window_size": 24, "feature_count": 12}', 78.6, '2023-07-01 00:00:00', TRUE, '2023-07-01 10:15:00', '2023-09-01 16:20:00'),
-(4, '고객행동예측', '분류', '0.9.5', '{"algorithm": "svm", "kernel": "rbf", "C": 1.0}', 81.2, '2023-08-10 00:00:00', FALSE, '2023-08-10 11:00:00', '2023-08-10 11:00:00'),
-(5, '가격최적화모델', '강화학습', '0.7.0', '{"discount_factor": 0.95, "epochs": 500, "batch_size": 32}', 75.8, '2023-09-05 00:00:00', TRUE, '2023-09-05 15:30:00', '2023-10-01 13:45:00');
-
--- 5. weather_data(날씨) 데이터
-INSERT INTO `weather_data` (`weather_id`, `wt_location`, `wt_date`, `wt_temperature`, `wt_condition`, `wt_humidity`, `wt_precipitation`, `wt_created_at`) VALUES
-(1, '서울', '2023-10-01', 22.5, '맑음', 45, 0.0, '2023-10-01 00:10:00'),
-(2, '서울', '2023-10-02', 23.1, '구름조금', 50, 0.0, '2023-10-02 00:10:00'),
-(3, '서울', '2023-10-03', 20.8, '흐림', 65, 5.2, '2023-10-03 00:10:00'),
-(4, '서울', '2023-10-04', 18.5, '비', 80, 15.7, '2023-10-04 00:10:00'),
-(5, '서울', '2023-10-05', 19.2, '비', 75, 8.3, '2023-10-05 00:10:00'),
-(6, '부산', '2023-10-01', 24.7, '맑음', 50, 0.0, '2023-10-01 00:10:00'),
-(7, '부산', '2023-10-02', 25.3, '맑음', 55, 0.0, '2023-10-02 00:10:00'),
-(8, '부산', '2023-10-03', 24.9, '구름조금', 60, 0.0, '2023-10-03 00:10:00'),
-(9, '부산', '2023-10-04', 22.1, '흐림', 70, 2.5, '2023-10-04 00:10:00'),
-(10, '부산', '2023-10-05', 21.5, '비', 85, 12.3, '2023-10-05 00:10:00');
-
 -- 6. product(상품) 데이터 추가 (카테고리 체계 변경에 맞게 수정)
 INSERT INTO `product` (`product_id`, `category_id`, `pro_name`, `pro_barcode`, `pro_cost`, `pro_sell_cost`, `pro_created_at`, `pro_update_at`, `pro_image`, `is_promo`, `pro_stock_limit`, `expiration_period`) VALUES
 -- 냉장식품(7) 카테고리의 상품들
@@ -326,10 +305,6 @@ INSERT INTO `demand_prediction` (`prediction_id`, `store_id`, `product_id`, `dmd
 (8, 2, 7, '2023-10-06', 30, 0.81, 0.68, 0.85, '2023-10-05 00:00:00'),
 (9, 3, 8, '2023-10-06', 45, 0.85, 0.75, 0.92, '2023-10-05 00:00:00'),
 (10, 1, 9, '2023-10-06', 35, 0.82, 0.70, 0.87, '2023-10-05 00:00:00');
-
--- 12. anomaly_detection(이상 탐지) 데이터
-INSERT INTO `anomaly_detection` (`anomaly_id`, `store_id`, `anom_type`, `anom_detection_time`, `anom_severity`, `anom_description`, `anom_is_resolved`, `anom_resolution_notes`, `anom_created_at`, `anom_updated_at`) VALUES
-(1, 1, '재고 급감', '2023-10-01 14:23:15', 4, '삼각김밥 참치 제품의 재고가 1시간 내에 30개 이상 감소했습니다.', TRUE, '특별 할인 행사로 인한 정상적인 판매량 증가', '2023-10-01 14:23:15', '2023-10-01 16:45:00');
 
 -- 13. part_timer(아르바이트) 데이터
 
@@ -1905,12 +1880,6 @@ INSERT INTO sales_detail (sales_detail_id, transaction_id, product_id, sales_qua
 (188, 79, 19, 4, 2000, 100, 7600,  900,4000,   NULL, 0),
 (189, 79, 20, 2, 1800,  50, 3500,  850,1800,   NULL, 0),
 (190, 79,  6, 1, 1500,   0, 1500,  600, 900,   NULL, 0);
-
--- 34. issue_log (최근 이슈) 데이터 삽입
-INSERT INTO `issue_log` (`issue_id`, `store_id`, `issue_title`, `issue_desc`, `issue_type`, `created_at`) VALUES
-(1, 1, '재고 급감', '삼각김밥 참치 제품의 재고가 급격히 감소', '재고', '2024-04-23 14:30:00'),
-(2, 2, 'POS 시스템 오류', 'POS 시스템에서 결제 오류가 발생', '시스템', '2024-04-23 10:00:00'),
-(3, 3, '상품 손상', '냉장식품 일부가 손상되어 판매 불가 상태', '상품', '2024-04-23 13:00:00');
 
 -- 35. pw_reset_token (비밀번호 재설정 토큰)
 INSERT INTO pw_reset_token (prtoken_id, emp_id, reset_token, prtoken_exp, prtoken_used, created_at) VALUES
