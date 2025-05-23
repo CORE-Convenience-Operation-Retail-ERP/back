@@ -116,7 +116,6 @@ public class SecurityConfig {
             "/api/stock-adjust/**",
             "/api/annual-leave/**",
             "/api/transaction/**",
-            "/api/chat/**",
             "/api/hr/**",
             "/api/integrated-stock/**",
             "/api/store-inquiries/**",
@@ -205,6 +204,7 @@ public class SecurityConfig {
                         .requestMatchers(HQ_BR_PATHS).hasAnyRole("HQ_BR", "HQ_BR_M", "MASTER")
                         .requestMatchers(STORE_PATHS).hasAnyRole("STORE", "MASTER")
                         .requestMatchers("/api/hr/annual-leave/request").hasAnyRole("HQ", "HQ_HRM", "HQ_HRM_M", "HQ_PRO", "HQ_PRO_M", "HQ_BR", "HQ_BR_M","MASTER")
+                        .requestMatchers("/api/chat/**").hasAnyRole("HQ", "HQ_HRM", "HQ_HRM_M", "HQ_PRO", "HQ_PRO_M", "HQ_BR", "HQ_BR_M","MASTER")
                         // 그 외 모든 요청은 인증 필요 (기본 설정)
                         .anyRequest().authenticated() // 명시되지 않은 모든 URL은 인증된 사용자만 접근 가능
                 );

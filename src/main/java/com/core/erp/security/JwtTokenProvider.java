@@ -104,7 +104,7 @@ public class JwtTokenProvider {
             case 1 -> "NON_STORE";
             case 2 -> "NON_HQ";
             case 3 -> "STORE";
-            case 4, 5 -> "HQ";
+            case 4, 5 -> "HQ_HRM";
             case 6, 7 -> "HQ_PRO";
             case 8, 9 -> "HQ_BR";
             case 10 -> "MASTER";
