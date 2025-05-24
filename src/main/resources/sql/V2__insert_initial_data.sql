@@ -1092,21 +1092,21 @@ INSERT INTO employee (emp_id, emp_role, store_id, depart_id, emp_name, emp_gende
 VALUES
 
 -- 인사팀
-(1, '본사', NULL, 4, '김인사', 1, '010-1000-0001', '서울특별시 강남구 테헤란로 123', '1990-01-01', 'kiminsa@coreerp.com', '$2b$12$aM72XpJ3m9oX6Z11pFFjq.34MRwZ6z//2epRMRemv89HsYQr35Epe', NULL, 1, '111-1111-1111', '1', '2023-01-01', 1, 1, '1001'),
+(1, '본사', NULL, 4, '김인사', 1, '010-1000-0001', '서울특별시 강남구 테헤란로 123', '1990-01-01', 'dlstk', '$2b$12$SXuYim4p0ycxzphbUSAalulxo0bHWpJQGlsVfY/sufn02H/9tXyv6', NULL, 1, '111-1111-1111', '1', '2023-01-01', 1, 1, '1001'),
 (2, '본사', NULL, 4, '박인사', 2, '010-1000-0002', '서울특별시 강남구 삼성로 45', '1991-02-02', 'parkinsa@coreerp.com', '$2b$12$aM72XpJ3m9oX6Z11pFFjq.34MRwZ6z//2epRMRemv89HsYQr35Epe', NULL, 2, '111-1111-1112', '1', '2023-01-02', 1, 1, '1002'),
 (3, '본사', NULL, 4, '이인사', 1, '010-1000-0003', '서울특별시 강남구 역삼로 99', '1992-03-03', 'leeinsa@coreerp.com', '$2b$12$aM72XpJ3m9oX6Z11pFFjq.34MRwZ6z//2epRMRemv89HsYQr35Epe', NULL, 3, '111-1111-1113', '1', '2023-01-03', 1, 1, '1003'),
 (4, '본사', NULL, 5, '정인사', 2, '010-1000-0004', '서울특별시 강남구 선릉로 333', '1993-04-04', 'junginsa@coreerp.com', '$2b$12$aM72XpJ3m9oX6Z11pFFjq.34MRwZ6z//2epRMRemv89HsYQr35Epe', NULL, 1, '111-1111-1114', '1', '2023-01-04', 1, 1, '1004'),
 (5, '본사', NULL, 5, '최인사', 1, '010-1000-0005', '서울특별시 강남구 논현로 58', '1994-05-05', 'choiinsa@coreerp.com', '$2b$12$aM72XpJ3m9oX6Z11pFFjq.34MRwZ6z//2epRMRemv89HsYQr35Epe', NULL, 2, '111-1111-1115', '1', '2023-01-05', 1, 1, '1005'),
 
 -- 상품관리팀
-(6, '본사', NULL, 6, '김상품', 1, '010-2000-0001', '서울특별시 서초구 서초대로 11', '1990-06-01', 'kimproduct@coreerp.com', '$2b$12$aM72XpJ3m9oX6Z11pFFjq.34MRwZ6z//2epRMRemv89HsYQr35Epe', NULL, 2, '222-2222-2221', '1', '2023-02-01', 1, 1, '2001'),
+(6, '본사', NULL, 6, '김상품', 1, '010-2000-0001', '서울특별시 서초구 서초대로 11', '1990-06-01', 'tkdvna', '$2b$12$SXuYim4p0ycxzphbUSAalulxo0bHWpJQGlsVfY/sufn02H/9tXyv6', NULL, 2, '222-2222-2221', '1', '2023-02-01', 1, 1, '2001'),
 (7, '본사', NULL, 6, '박상품', 2, '010-2000-0002', '서울특별시 서초구 반포대로 222', '1991-07-02', 'parkproduct@coreerp.com', '$2b$12$aM72XpJ3m9oX6Z11pFFjq.34MRwZ6z//2epRMRemv89HsYQr35Epe', NULL, 3, '222-2222-2222', '1', '2023-02-02', 1, 1, '2002'),
 (8, '본사', NULL, 6, '이상품', 1, '010-2000-0003', '서울특별시 서초구 강남대로 321', '1992-08-03', 'leeproduct@coreerp.com', '$2b$12$aM72XpJ3m9oX6Z11pFFjq.34MRwZ6z//2epRMRemv89HsYQr35Epe', NULL, 1, '222-2222-2223', '1', '2023-02-03', 1, 1, '2003'),
 (9, '본사', NULL, 7, '정상품', 2, '010-2000-0004', '서울특별시 서초구 방배로 456', '1993-09-04', 'jungproduct@coreerp.com', '$2b$12$aM72XpJ3m9oX6Z11pFFjq.34MRwZ6z//2epRMRemv89HsYQr35Epe', NULL, 2, '222-2222-2224', '1', '2023-02-04', 1, 1, '2004'),
 (10, '본사', NULL, 7, '최상품', 1, '010-2000-0005', '서울특별시 서초구 남부순환로 789', '1994-10-05', 'choiproduct@coreerp.com', '$2b$12$aM72XpJ3m9oX6Z11pFFjq.34MRwZ6z//2epRMRemv89HsYQr35Epe', NULL, 3, '222-2222-2225', '1', '2023-02-05', 1, 1, '2005'),
 
 -- 지점관리팀
-(11, '본사', NULL, 8, '김지점', 2, '010-3000-0001', '서울특별시 송파구 송파대로 88', '1990-11-01', 'kimbranch@coreerp.com', '$2b$12$aM72XpJ3m9oX6Z11pFFjq.34MRwZ6z//2epRMRemv89HsYQr35Epe', NULL, 1, '333-3333-3331', '1', '2023-03-01', 1, 1, '3001'),
+(11, '본사', NULL, 8, '김지점', 2, '010-3000-0001', '서울특별시 송파구 송파대로 88', '1990-11-01', 'wlwja', '$2b$12$SXuYim4p0ycxzphbUSAalulxo0bHWpJQGlsVfY/sufn02H/9tXyv6', NULL, 1, '333-3333-3331', '1', '2023-03-01', 1, 1, '3001'),
 (12, '본사', NULL, 8, '박지점', 1, '010-3000-0002', '서울특별시 송파구 가락로 222', '1991-12-02', 'parkbranch@coreerp.com', '$2b$12$aM72XpJ3m9oX6Z11pFFjq.34MRwZ6z//2epRMRemv89HsYQr35Epe', NULL, 2, '333-3333-3332', '1', '2023-03-02', 1, 1, '3002'),
 (13, '본사', NULL, 8, '이지점', 2, '010-3000-0003', '서울특별시 송파구 문정로 303', '1992-01-03', 'leebranch@coreerp.com', '$2b$12$aM72XpJ3m9oX6Z11pFFjq.34MRwZ6z//2epRMRemv89HsYQr35Epe', NULL, 3, '333-3333-3333', '1', '2023-03-03', 1, 1, '3003'),
 (14, '본사', NULL, 9, '정지점', 1, '010-3000-0004', '서울특별시 송파구 오금로 404', '1993-02-04', 'jungbranch@coreerp.com', '$2b$12$aM72XpJ3m9oX6Z11pFFjq.34MRwZ6z//2epRMRemv89HsYQr35Epe', NULL, 1, '333-3333-3334', '1', '2023-03-04', 1, 1, '3004'),
