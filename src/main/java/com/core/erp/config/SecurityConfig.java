@@ -32,7 +32,15 @@ public class SecurityConfig {
     // 권한별 경로 리스트
     public static final String[] HQ_HRM_PATHS = {
             "/api/headquarters/hr/**",           // 본사 인사팀 전용 API 전체
-            "/api/hr/annual-leave/**",           // 연차 관리(신청, 승인 등)
+            "/api/hr/annual-leave/debug",           // 연차 관리(신청, 승인 등)
+            "/api/hr/annual-leave/approve",           // 연차 관리(신청, 승인 등)
+            "/api/hr/annual-leave/employee/**",           // 연차 관리(신청, 승인 등)
+        //     "/api/hr/annual-leave/comments/**",           // 연차 관리(신청, 승인 등)
+            "/api/hr/annual-leave/change-status/**",           // 연차 관리(신청, 승인 등)
+            "/api/hr/annual-leave/all",           // 연차 관리(신청, 승인 등)
+        //     "/api/hr/annual-leave/request",           // 연차 관리(신청, 승인 등)
+            "/api/hr/annual-leave/add-comment",           // 연차 관리(신청, 승인 등)
+            
             "/api/employees/**",                 // 사원 정보 조회
             "/api/employee-management/**",       // 사원 관리(등록, 수정 등)
             "/api/departments",                  // 부서 정보 조회
@@ -204,6 +212,7 @@ public class SecurityConfig {
                         .requestMatchers(HQ_BR_PATHS).hasAnyRole("HQ_BR", "HQ_BR_M", "MASTER")
                         .requestMatchers(STORE_PATHS).hasAnyRole("STORE", "MASTER")
                         .requestMatchers("/api/hr/annual-leave/request").hasAnyRole("HQ", "HQ_HRM", "HQ_HRM_M", "HQ_PRO", "HQ_PRO_M", "HQ_BR", "HQ_BR_M","MASTER")
+                        .requestMatchers("/api/hr/annual-leave/comments/**").hasAnyRole("HQ", "HQ_HRM", "HQ_HRM_M", "HQ_PRO", "HQ_PRO_M", "HQ_BR", "HQ_BR_M","MASTER")
                         .requestMatchers("/api/chat/**").hasAnyRole("HQ", "HQ_HRM", "HQ_HRM_M", "HQ_PRO", "HQ_PRO_M", "HQ_BR", "HQ_BR_M","MASTER")
                         // 그 외 모든 요청은 인증 필요 (기본 설정)
                         .anyRequest().authenticated() // 명시되지 않은 모든 URL은 인증된 사용자만 접근 가능
