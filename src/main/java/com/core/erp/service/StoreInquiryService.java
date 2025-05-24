@@ -241,7 +241,7 @@ public class StoreInquiryService {
             
             // 컴플레인 점수는 음수로 반영 (가중치 적용: 심각도 5는 -10점)
             if ((int) storeData.get("complaintCount") > 0) {
-                totalScore -= complaintScore * 2; // 컴플레인 가중치
+                totalScore -= complaintScore; // 가중치 없이 1배만 반영
             }
             
             storeData.put("totalScore", totalScore);

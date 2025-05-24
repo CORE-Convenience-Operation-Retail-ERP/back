@@ -30,7 +30,8 @@ public class NotificationService {
      */
     @Transactional
     public NotificationDTO createNotification(Integer userId, String type, String content, String link) {
-        System.out.println("[알림] createNotification(userId, type, content, link) 호출됨: userId=" + userId + ", type=" + type + ", content=" + content + ", link=" + link);
+        log.warn("[알림22222-DEBUG] createNotification(userId, type, content, link) 호출됨: userId={}, type={}, content={}, link={}", userId, type, content, link);
+        System.out.println("[알림2222222222] createNotification(userId, type, content, link) 호출됨: userId=" + userId + ", type=" + type + ", content=" + content + ", link=" + link);
         log.info("기본 알림 생성 요청: userId={}, type={}, content={}", userId, type, content);
         return createNotification(userId, null, null, type, content, link);
     }
@@ -40,7 +41,8 @@ public class NotificationService {
      */
     @Transactional
     public NotificationDTO createNotification(Integer userId, Integer targetDeptId, String eventType, String type, String content, String link) {
-        System.out.println("[알림] createNotification(userId, targetDeptId, eventType, type, content, link) 호출됨: userId=" + userId + ", targetDeptId=" + targetDeptId + ", eventType=" + eventType + ", type=" + type + ", content=" + content + ", link=" + link);
+        log.warn("[알림-DEBUG222222222] createNotification(userId, targetDeptId, eventType, type, content, link) 호출됨: userId={}, targetDeptId={}, eventType={}, type={}, content={}, link={}", userId, targetDeptId, eventType, type, content, link);
+        System.out.println("[알림222222222] createNotification(userId, targetDeptId, eventType, type, content, link) 호출됨: userId=" + userId + ", targetDeptId=" + targetDeptId + ", eventType=" + eventType + ", type=" + type + ", content=" + content + ", link=" + link);
         log.info("[알림 생성] 파라미터: userId={}, targetDeptId={}, eventType={}, type={}, content={}, link={}",
                 userId, targetDeptId, eventType, type, content, link);
         try {
@@ -75,8 +77,9 @@ public class NotificationService {
                     .link(link)
                     .build();
             log.info("[알림 생성] NotificationEntity 생성: {}", notification);
+            log.warn("[알림-DEBUG] NotificationEntity 저장 직전: {}", notification);
             NotificationEntity savedNotification = notificationRepository.save(notification);
-            log.info("[알림 생성] 알림 DB 저장 완료: id={}", savedNotification.getId());
+            log.warn("[알림-DEBUG] NotificationEntity 저장 완료: id={}, 내용={}", savedNotification.getId(), savedNotification.getContent());
             NotificationDTO notificationDTO = NotificationDTO.fromEntity(savedNotification);
             // 웹소켓 전송 로그
             log.info("[알림 생성] 웹소켓 전송 시작: 개인={}, 부서={}, 이벤트={}, 관리자", userId, targetDeptId, eventType);
