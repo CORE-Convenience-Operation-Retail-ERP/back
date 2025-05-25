@@ -42,6 +42,8 @@ public class PosService {
         SalesTransactionEntity tx = new SalesTransactionEntity();
         tx.setEmployee(employee);
         tx.setStore(store);
+        tx.setAgeGroup(Integer.valueOf(dto.getAgeGroup()));
+        tx.setGender(Integer.valueOf(dto.getGender()));
 
         // 아르바이트 ID 주입 (교대 정산용)
         if (dto.getPartTimerId() != null) {

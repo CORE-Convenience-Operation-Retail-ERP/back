@@ -73,10 +73,15 @@ public class SalesTransactionEntity {
     @ToString.Exclude
     private List<SalesDetailEntity> salesDetails;
 
+    // 자동 created_at 설정
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
+
     // DTO → Entity 변환 생성자
     public SalesTransactionEntity(SalesTransactionDTO dto) {
         this.transactionId = dto.getTransactionId();
-        // store, employee는 별도 매핑 필요
         this.totalPrice = dto.getTotalPrice();
         this.discountTotal = dto.getDiscountTotal();
         this.finalAmount = dto.getFinalAmount();
@@ -90,6 +95,4 @@ public class SalesTransactionEntity {
         this.ageGroup = dto.getAgeGroup();
         this.gender = dto.getGender();
     }
-
-
 }

@@ -22,14 +22,14 @@ public class SettlementController {
 
     // 일별 매출 정산 API
     @PostMapping("/settlement/daily")
-    public ResponseEntity<String> calculateDailySettlement(@RequestBody SettlementRequestDTO request) {
+    public ResponseEntity<SettlementDTO> calculateDailySettlement(@RequestBody SettlementRequestDTO request) {
         try {
-            settlementService.calculateDailySettlement(request);
-            return ResponseEntity.ok("일별 매출 정산 완료");
+            SettlementDTO result = settlementService.calculateDailySettlement(request);
+            return ResponseEntity.ok(result);
         } catch (IllegalStateException e) {
-            return ResponseEntity.badRequest().body("정산 실패: " + e.getMessage());
+            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("서버 오류: " + e.getMessage());
+            return ResponseEntity.internalServerError().build();
         }
     }
 
