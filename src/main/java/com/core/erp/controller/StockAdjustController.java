@@ -3,6 +3,7 @@ package com.core.erp.controller;
 import com.core.erp.dto.CustomPrincipal;
 import com.core.erp.dto.stock.StockAdjustDTO;
 import com.core.erp.dto.stock.StockAdjustLogDTO;
+import com.core.erp.dto.stock.StockInHistoryDTO;
 import com.core.erp.service.StockService;
 import com.core.erp.service.HQStockService;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +42,7 @@ public class StockAdjustController {
         return ResponseEntity.ok("재고 수량이 수정되었습니다.");
     }
 
-    @GetMapping("/adjust-log") // ✅ GET 로그 전체
+    @GetMapping("/adjust-log")
     public ResponseEntity<Page<StockAdjustLogDTO>> getAdjustLogs(
             @AuthenticationPrincipal CustomPrincipal user,
             @RequestParam(defaultValue = "0") int page,
@@ -66,4 +67,43 @@ public class StockAdjustController {
                 user.getStoreId(), user.getRole(), from, to, adjustedBy, productName, page, size);
         return ResponseEntity.ok(result);
     }
+    /** 입고 이력 전체 조회 (권한별) */
+    @GetMapping("/adjust/in-history")
+    public ResponseEntity<Page<StockInHistoryDTO>> getStockInHistory(
+            @AuthenticationPrincipal CustomPrincipal user,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<StockInHistoryDTO> result =
+                stockService.getStockInHistory(user.getStoreId(), user.getRole(), page, size);
+        return ResponseEntity.ok(result);
+    }
+
+    /** 입고 이력 필터 조회 (기간·상태·상품명·바코드 등) */
+    @GetMapping("/adjust/in-history/filter")
+    public ResponseEntity<Page<StockInHistoryDTO>> filterStockInHistory(
+            @AuthenticationPrincipal CustomPrincipal user,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            LocalDateTime from,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            LocalDateTime to,
+            @RequestParam(required = false) Integer status,
+            @RequestParam(required = false) Boolean isAbnormal,
+            @RequestParam(required = false) String productName,
+            @RequestParam(required = false) String barcode,
+            @RequestParam(required = false) String partTimerName,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<StockInHistoryDTO> result = stockService.filterStockInHistory(
+                user.getStoreId(), user.getRole(),
+                from, to, status, isAbnormal,
+                productName, barcode, partTimerName,
+                page, size
+        );
+        return ResponseEntity.ok(result);
+    }
 }
+

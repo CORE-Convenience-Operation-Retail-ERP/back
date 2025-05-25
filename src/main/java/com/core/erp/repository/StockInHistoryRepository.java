@@ -32,6 +32,7 @@ public interface StockInHistoryRepository extends JpaRepository<StockInHistoryEn
       AND (:isAbnormal IS NULL OR (:isAbnormal = true AND s.historyStatus = 4))
       AND (:productName IS NULL OR s.product.proName LIKE %:productName%)
       AND (:barcode IS NULL OR CAST(s.product.proBarcode AS string) LIKE %:barcode%)
+      AND (:partTimerName IS NULL OR s.partTimer.partName LIKE %:partTimerName%)
 """)
 
     Page<StockInHistoryEntity> filterHistory(
@@ -42,6 +43,7 @@ public interface StockInHistoryRepository extends JpaRepository<StockInHistoryEn
             @Param("isAbnormal") Boolean isAbnormal,
             @Param("productName") String productName,
             @Param("barcode") String barcode,
+            @Param("partTimerName") String partTimerName,
             Pageable pageable
     );
 

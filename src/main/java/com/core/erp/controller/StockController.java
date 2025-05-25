@@ -45,6 +45,7 @@ public class StockController {
             @RequestParam(required = false) Boolean isAbnormal,
             @RequestParam(required = false) String productName,
             @RequestParam(required = false) String barcode,
+            @RequestParam(required = false) String partTimerName,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
@@ -52,7 +53,7 @@ public class StockController {
         Integer storeId = userDetails.getStoreId();
 
         Page<StockInHistoryDTO> result = stockService.filterStockInHistory(
-                storeId, role, from, to, status, isAbnormal, productName, barcode, page, size);
+                storeId, role, from, to, status, isAbnormal, productName, barcode, partTimerName, page, size);
 
         return ResponseEntity.ok(result);
     }

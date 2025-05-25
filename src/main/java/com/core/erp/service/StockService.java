@@ -18,14 +18,12 @@ import java.util.List;
 
 public class StockService {
 
-    private final StoreRepository storeRepository;
     private final ProductRepository productRepository;
     private final StockInHistoryRepository stockInHistoryRepository;
     private final StoreStockRepository storeStockRepository;
     private final StockAdjustLogRepository stockAdjustLogRepository;
     private final PartTimerRepository partTimerRepository;
     private final PurchaseOrderItemRepository purchaseOrderItemRepository;
-    private final StockInventoryCheckRepository inventoryCheckRepository;
     private final StockInventoryCheckItemRepository stockInventoryCheckItemRepository;
     private final WarehouseStockRepository warehouseStockRepository;
 
@@ -34,7 +32,7 @@ public class StockService {
         Pageable pageable = PageRequest.of(page, size, Sort.by("inDate").descending());
         Page<StockInHistoryEntity> historyPage;
 
-        if ("ROLE_HQ".equals(role)) {
+        if ("ROLE_MASTER".equals(role)) {
             historyPage = stockInHistoryRepository.findAll(pageable);
         } else {
             historyPage = stockInHistoryRepository.findByStore_StoreId(storeId, pageable);
@@ -56,13 +54,14 @@ public class StockService {
             Boolean isAbnormal,
             String productName,
             String barcode,
+            String partTimerName,
             int page,
             int size
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("inDate").descending());
 
         // HQ는 전체 조회, 점주는 자신의 매장만
-        Integer searchStoreId = "ROLE_HQ".equals(role) ? null : storeId;
+        Integer searchStoreId = "ROLE_MASTER".equals(role) ? null : storeId;
 
         Page<StockInHistoryEntity> historyPage = stockInHistoryRepository.filterHistory(
                 searchStoreId,
@@ -72,6 +71,7 @@ public class StockService {
                 isAbnormal,
                 productName,
                 barcode,
+                partTimerName,
                 pageable
         );
 
@@ -139,7 +139,7 @@ public class StockService {
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("adjustDate").descending());
 
-        Integer searchStoreId = "ROLE_HQ".equals(role) ? null : storeId;
+        Integer searchStoreId = "ROLE_MASTER".equals(role) ? null : storeId;
 
         Page<StockAdjustLogEntity> filtered = stockAdjustLogRepository.filterLogs(
                 searchStoreId, from, to, adjustedBy, productName, pageable);
