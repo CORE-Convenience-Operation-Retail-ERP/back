@@ -43,38 +43,6 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/api/**")
-                        .allowedOrigins(
-                                "http://localhost:3000",
-                                "http://127.0.0.1:3000",
-                                "http://localhost:3001",
-                                "http://127.0.0.1:3001"
-                        ) // 프론트엔드 주소
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // OPTIONS 추가
-                        .allowedHeaders("*") // 모든 헤더 허용
-                        .allowCredentials(true); // 세션 쿠키 허용
-            }
-            
-            @Override
-            public void addResourceHandlers(ResourceHandlerRegistry registry) {
-                // 파일 업로드 디렉토리 생성
-                File uploadDir = new File("uploads");
-                if (!uploadDir.exists()) {
-                    uploadDir.mkdirs();
-                }
-                
-                // 업로드된 파일에 접근할 수 있는 URL 매핑 설정
-                registry.addResourceHandler("/uploads/**")
-                        .addResourceLocations("file:uploads/");
-            }
-        };
-    }
-
-    @Bean
     public RestTemplate restTemplate() {
         RestTemplate restTemplate = new RestTemplate();
         

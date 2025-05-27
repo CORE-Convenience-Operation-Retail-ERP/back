@@ -1200,7 +1200,7 @@ INSERT INTO appr_log (log_id, req_id, emp_id, appr_status, appr_at, note) VALUES
 -- 1: 지급대기
 -- 2: 지급완료
 
-INSERT INTO Salary (salary_id, emp_id, calculated_at, base_salary, bonus, deduct_total, deduct_extra, net_salary, pay_date, pay_status) VALUES
+INSERT INTO salary (salary_id, emp_id, calculated_at, base_salary, bonus, deduct_total, deduct_extra, net_salary, pay_date, pay_status) VALUES
 (1, 1, '2023-11-30', 3000000, 300000, 300000, null, 3000000, '2023-12-05', 2),
 (2, 2, '2023-11-30', 2800000, 280000, 280000, null, 2800000, '2023-12-05', 2),
 (3, 3, '2023-11-30', 2600000, 260000, 260000, null, 2600000, '2023-12-05', 2),
@@ -1212,7 +1212,7 @@ INSERT INTO Salary (salary_id, emp_id, calculated_at, base_salary, bonus, deduct
 (9, 9, '2023-11-30', 2500000, 250000, 250000, null, 2500000, '2023-12-05', 2),
 (10, 10, '2023-11-30', 3500000, 350000, 350000, null, 3500000, '2023-12-05', 1);
 
-INSERT INTO Salary (salary_id, emp_id, part_timer_id,store_id, calculated_at, base_salary, bonus, deduct_total, deduct_extra, net_salary, pay_date, pay_status) VALUES
+INSERT INTO salary (salary_id, emp_id, part_timer_id,store_id, calculated_at, base_salary, bonus, deduct_total, deduct_extra, net_salary, pay_date, pay_status) VALUES
 (11, NULL, 1, 1, '2025-04-22', 1487274, 100000, 116900, 0, 1470374, '2025-04-22', 2),
 (12, NULL, 2, 1, '2025-04-16', 1011106, 100000, 81310, 30000, 999796, '2025-04-20', 1),
 (13, NULL, 3, 1, '2025-04-16', 1147189, 50000, 70869, 0, 1126320, '2025-04-21', 1),
@@ -1265,7 +1265,7 @@ INSERT INTO Salary (salary_id, emp_id, part_timer_id,store_id, calculated_at, ba
 (60, NULL, 50, 10, '2025-04-21', 1356160, 50000, 139337, 20000, 1246823, '2025-04-21', 2);
 
 -- emp_id 1
-INSERT INTO Salary (salary_id, emp_id, calculated_at, base_salary, bonus, deduct_total, deduct_extra, net_salary, pay_date, pay_status) VALUES
+INSERT INTO salary (salary_id, emp_id, calculated_at, base_salary, bonus, deduct_total, deduct_extra, net_salary, pay_date, pay_status) VALUES
                                                                                                                                             (61, 1, '2025-01-05', 3100000, 310000, 310000, null, 3100000, '2023-11-05', 2),
                                                                                                                                             (62, 1, '2025-02-05', 3150000, 315000, 315000, null, 3150000, '2023-12-05', 2),
                                                                                                                                             (63, 1, '2025-03-05', 3200000, 320000, 320000, null, 3200000, '2024-01-05', 2),
@@ -1274,7 +1274,7 @@ INSERT INTO Salary (salary_id, emp_id, calculated_at, base_salary, bonus, deduct
                                                                                                                                             (66, 1, '2025-06-05', 3350000, 335000, 335000, null, 3350000, '2024-04-05', 1);
 
 -- emp_id 2
-INSERT INTO Salary (salary_id, emp_id, calculated_at, base_salary, bonus, deduct_total, deduct_extra, net_salary, pay_date, pay_status) VALUES
+INSERT INTO salary (salary_id, emp_id, calculated_at, base_salary, bonus, deduct_total, deduct_extra, net_salary, pay_date, pay_status) VALUES
                                                                                                                                             (67, 2, '2025-01-05', 2800000, 280000, 280000, null, 2800000, '2023-11-05', 2),
                                                                                                                                             (68, 2, '2025-02-05', 2850000, 285000, 285000, null, 2850000, '2023-12-05', 2),
                                                                                                                                             (69, 2, '2025-03-05', 2900000, 290000, 290000, null, 2900000, '2024-01-05', 2),
@@ -1283,7 +1283,7 @@ INSERT INTO Salary (salary_id, emp_id, calculated_at, base_salary, bonus, deduct
                                                                                                                                             (72, 2, '2025-06-05', 3050000, 305000, 305000, null, 3050000, '2024-04-05', 2);
 
 -- emp_id 3
-INSERT INTO Salary (salary_id, emp_id, calculated_at, base_salary, bonus, deduct_total, deduct_extra, net_salary, pay_date, pay_status) VALUES
+INSERT INTO salary (salary_id, emp_id, calculated_at, base_salary, bonus, deduct_total, deduct_extra, net_salary, pay_date, pay_status) VALUES
                                                                                                                                             (73, 3, '2025-01-05', 2600000, 260000, 260000, null, 2600000, '2023-11-05', 2),
                                                                                                                                             (74, 3, '2025-02-05', 2650000, 265000, 265000, null, 2650000, '2023-12-05', 2),
                                                                                                                                             (75, 3, '2025-03-05', 2700000, 270000, 270000, null, 2700000, '2024-01-05', 2),
@@ -1292,7 +1292,7 @@ INSERT INTO Salary (salary_id, emp_id, calculated_at, base_salary, bonus, deduct
                                                                                                                                             (78, 3, '2025-06-05', 2850000, 285000, 285000, null, 2850000, '2024-04-05', 1);
 
 -- emp_id 4
-INSERT INTO Salary (salary_id, emp_id, calculated_at, base_salary, bonus, deduct_total, deduct_extra, net_salary, pay_date, pay_status) VALUES
+INSERT INTO salary (salary_id, emp_id, calculated_at, base_salary, bonus, deduct_total, deduct_extra, net_salary, pay_date, pay_status) VALUES
                                                                                                                                             (79, 4, '2025-01-05', 2400000, 240000, 240000, null, 2400000, '2023-11-05', 2),
                                                                                                                                             (80, 4, '2025-02-05', 2450000, 245000, 245000, null, 2450000, '2023-12-05', 2),
                                                                                                                                             (81, 4, '2025-03-05', 2500000, 250000, 250000, null, 2500000, '2024-01-05', 2),
@@ -1301,7 +1301,7 @@ INSERT INTO Salary (salary_id, emp_id, calculated_at, base_salary, bonus, deduct
                                                                                                                                             (84, 4, '2025-06-05', 2650000, 265000, 265000, null, 2650000, '2024-04-05', 2);
 
 -- emp_id 5
-INSERT INTO Salary (salary_id, emp_id, calculated_at, base_salary, bonus, deduct_total, deduct_extra, net_salary, pay_date, pay_status) VALUES
+INSERT INTO salary (salary_id, emp_id, calculated_at, base_salary, bonus, deduct_total, deduct_extra, net_salary, pay_date, pay_status) VALUES
                                                                                                                                             (85, 5, '2025-01-05', 2200000, 220000, 220000, null, 2200000, '2023-11-05', 2),
                                                                                                                                             (86, 5, '2025-02-05', 2250000, 225000, 225000, null, 2250000, '2023-12-05', 2),
                                                                                                                                             (87, 5, '2025-03-05', 2300000, 230000, 230000, null, 2300000, '2024-01-05', 2),
@@ -1310,7 +1310,7 @@ INSERT INTO Salary (salary_id, emp_id, calculated_at, base_salary, bonus, deduct
                                                                                                                                             (90, 5, '2025-06-05', 2450000, 245000, 245000, null, 2450000, '2024-04-05', 2);
 
 -- emp_id 6
-INSERT INTO Salary (salary_id, emp_id, calculated_at, base_salary, bonus, deduct_total, deduct_extra, net_salary, pay_date, pay_status) VALUES
+INSERT INTO salary (salary_id, emp_id, calculated_at, base_salary, bonus, deduct_total, deduct_extra, net_salary, pay_date, pay_status) VALUES
                                                                                                                                             (91, 6, '2025-01-05', 3200000, 320000, 320000, null, 3200000, '2023-11-05', 2),
                                                                                                                                             (92, 6, '2025-02-05', 3250000, 325000, 325000, null, 3250000, '2023-12-05', 2),
                                                                                                                                             (93, 6, '2025-03-05', 3300000, 330000, 330000, null, 3300000, '2024-01-05', 2),
@@ -1319,7 +1319,7 @@ INSERT INTO Salary (salary_id, emp_id, calculated_at, base_salary, bonus, deduct
                                                                                                                                             (96, 6, '2025-06-05', 3450000, 345000, 345000, null, 3450000, '2024-04-05', 1);
 
 -- emp_id 7
-INSERT INTO Salary (salary_id, emp_id, calculated_at, base_salary, bonus, deduct_total, deduct_extra, net_salary, pay_date, pay_status) VALUES
+INSERT INTO salary (salary_id, emp_id, calculated_at, base_salary, bonus, deduct_total, deduct_extra, net_salary, pay_date, pay_status) VALUES
                                                                                                                                             (97, 7, '2025-01-05',2900000, 290000, 290000, null, 2900000, '2023-11-05', 2),
                                                                                                                                             (98, 7, '2025-02-05',2950000, 295000, 295000, null, 2950000, '2023-12-05', 2),
                                                                                                                                             (99, 7, '2025-03-05',3000000, 300000, 300000, null, 3000000, '2024-01-05', 2),
@@ -1328,7 +1328,7 @@ INSERT INTO Salary (salary_id, emp_id, calculated_at, base_salary, bonus, deduct
                                                                                                                                             (102, 7,'2025-06-05', 3150000, 315000, 315000, null, 3150000, '2024-04-05', 2);
 
 -- emp_id 8
-INSERT INTO Salary (salary_id, emp_id, calculated_at, base_salary, bonus, deduct_total, deduct_extra, net_salary, pay_date, pay_status) VALUES
+INSERT INTO salary (salary_id, emp_id, calculated_at, base_salary, bonus, deduct_total, deduct_extra, net_salary, pay_date, pay_status) VALUES
                                                                                                                                             (103, 8, '2025-01-05', 2700000, 270000, 270000, null, 2700000, '2023-11-05', 2),
                                                                                                                                             (104, 8, '2025-02-05', 2750000, 275000, 275000, null, 2750000, '2023-12-05', 2),
                                                                                                                                             (105, 8, '2025-03-05', 2800000, 280000, 280000, null, 2800000, '2024-01-05', 2),
@@ -1337,7 +1337,7 @@ INSERT INTO Salary (salary_id, emp_id, calculated_at, base_salary, bonus, deduct
                                                                                                                                             (108, 8, '2025-06-05', 2950000, 295000, 295000, null, 2950000, '2024-04-05', 1);
 
 -- emp_id 9
-INSERT INTO Salary (salary_id, emp_id, calculated_at, base_salary, bonus, deduct_total, deduct_extra, net_salary, pay_date, pay_status) VALUES
+INSERT INTO salary (salary_id, emp_id, calculated_at, base_salary, bonus, deduct_total, deduct_extra, net_salary, pay_date, pay_status) VALUES
                                                                                                                                             (109, 9, '2025-01-05', 2500000, 250000, 250000, null, 2500000, '2023-11-05', 2),
                                                                                                                                             (110, 9, '2025-02-05', 2550000, 255000, 255000, null, 2550000, '2023-12-05', 2),
                                                                                                                                             (111, 9, '2025-03-05', 2600000, 260000, 260000, null, 2600000, '2024-01-05', 2),
@@ -1345,7 +1345,7 @@ INSERT INTO Salary (salary_id, emp_id, calculated_at, base_salary, bonus, deduct
                                                                                                                                             (113, 9, '2025-05-05', 2700000, 270000, 270000, null, 2700000, '2024-03-05', 2),
                                                                                                                                             (114, 9, '2025-06-05', 2750000, 275000, 275000, null, 2750000, '2024-04-05', 2);
 
-INSERT INTO Salary (salary_id, emp_id, calculated_at, base_salary, bonus, deduct_total, deduct_extra, net_salary, pay_date, pay_status) VALUES
+INSERT INTO salary (salary_id, emp_id, calculated_at, base_salary, bonus, deduct_total, deduct_extra, net_salary, pay_date, pay_status) VALUES
                                                                                                                                             (115, 15, '2025-01-05', 3100000, 310000, 341000, null, 3069000, '2023-11-05', 2),
                                                                                                                                             (116, 15, '2025-02-05', 3150000, 315000, 346500, null, 3118500, '2023-12-05', 2),
                                                                                                                                             (117, 15, '2025-03-05', 3200000, 320000, 352000, null, 3168000, '2024-01-05', 2),

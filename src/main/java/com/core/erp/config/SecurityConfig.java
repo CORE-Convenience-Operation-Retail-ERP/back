@@ -169,7 +169,8 @@ public class SecurityConfig {
                             "http://localhost:8080",
                             "http://127.0.0.1:3000",
                             "http://127.0.0.1:3001",
-                            "http://127.0.0.1:8080"
+                            "http://127.0.0.1:8080",
+                            "http://core-erp-frontend.s3-website.ap-northeast-2.amazonaws.com"
                     )); // 특정 출처 허용
                     config.setAllowedMethods(List.of("GET","PATCH" ,"POST", "PUT", "DELETE", "OPTIONS")); // 허용할 HTTP 메서드
                     config.setAllowedHeaders(List.of("*")); // 모든 헤더 허용
