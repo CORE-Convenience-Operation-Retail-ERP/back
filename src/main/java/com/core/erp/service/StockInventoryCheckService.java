@@ -180,9 +180,9 @@ public class StockInventoryCheckService {
                 rollbackDiff,
                 currentTotal,
                 rollbackTotal,
-                "실사 롤백",
+                "실사 복원",
                 item.getInventoryCheck().getPartTimer().getPartName(),
-                "재고 실사 롤백"
+                "재고 실사 복원"
         );
 
         item.setIsApplied(false);
