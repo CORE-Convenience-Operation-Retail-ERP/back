@@ -100,8 +100,6 @@ public class SecurityConfig {
             "/api/products/all",
             "/api/products/paged/**",
             // "/api/products/detail/**",
-            "/api/hq-stock",
-            "/api/hq-stock/**",
             "/api/headquarters/branches",
             "/api/headquarters/branches/**",
             "/api/headquarters/notice/**",
@@ -138,6 +136,8 @@ public class SecurityConfig {
             "/api/stock/**",
             "/api/stock-flow/**",
             "/api/products/**",
+            "/api/hq-stock",
+            "/api/hq-stock/**",
     };
 
 

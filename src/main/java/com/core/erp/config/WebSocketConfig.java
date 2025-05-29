@@ -33,7 +33,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // 웹소켓 연결 엔드포인트 등록
         registry.addEndpoint("/ws")
-                .setAllowedOrigins("http://localhost:3000") // 프론트엔드 서버 주소
+                .setAllowedOrigins(
+                    "http://localhost:3000",
+                    "https://corepos.store",
+                    "https://erp.corepos.store",
+                    "https://api.corepos.store"
+                )
                 .withSockJS();
     }
 
