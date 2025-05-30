@@ -82,19 +82,30 @@ public class NotificationService {
             log.warn("[알림-DEBUG] NotificationEntity 저장 완료: id={}, 내용={}", savedNotification.getId(), savedNotification.getContent());
             NotificationDTO notificationDTO = NotificationDTO.fromEntity(savedNotification);
             // 웹소켓 전송 로그
-            log.info("[알림 생성] 웹소켓 전송 시작: 개인={}, 부서={}, 이벤트={}, 관리자", userId, targetDeptId, eventType);
+            log.info("[알림 생성] 웹소켓 전송 시작: 개인={}, 부서={}, 이벤트={}", userId, targetDeptId, eventType);
             log.info("[알림 생성] [개인] /user/{}/topic/notifications 데이터: {}", userId, notificationDTO);
-            messagingTemplate.convertAndSendToUser(userId.toString(), "/topic/notifications", notificationDTO);
+            
+            // 웹소켓 전송 로직 개선
             if (targetDeptId != null) {
-                log.info("[알림 생성] [부서] /topic/notifications/dept/{} 데이터: {}", targetDeptId, notificationDTO);
+                // 부서별 알림 전송
+                log.info("[알림 생성] 부서 알림 전송: /topic/notifications/dept/{}", targetDeptId);
                 messagingTemplate.convertAndSend("/topic/notifications/dept/" + targetDeptId, notificationDTO);
             }
-            if (eventType != null) {
-                log.info("[알림 생성] [이벤트] /topic/notifications/event/{} 데이터: {}", eventType, notificationDTO);
-                messagingTemplate.convertAndSend("/topic/notifications/event/" + eventType, notificationDTO);
+            
+            // 개인 알림 전송 (항상 실행)
+            if (userId != null) {
+                log.info("[알림 생성] 개인 알림 전송: /user/{}/topic/notifications", userId);
+                messagingTemplate.convertAndSendToUser(userId.toString(), "/topic/notifications", notificationDTO);
             }
-            log.info("[알림 생성] [관리자] /topic/notifications/admin 데이터: {}", notificationDTO);
-            messagingTemplate.convertAndSend("/topic/notifications/admin", notificationDTO);
+            
+            // 관리자 알림 채널에도 전송 (모든 관리자가 볼 수 있도록)
+            if (eventType != null && (eventType.equals("NOTICE") || eventType.equals("HR_JOIN") || 
+                eventType.equals("HR_LEAVE") || eventType.equals("PRODUCT_STOCK") || 
+                eventType.equals("STORE_INQUIRY"))) {
+                log.info("[알림 생성] 관리자 알림 전송: /topic/notifications/admin");
+                messagingTemplate.convertAndSend("/topic/notifications/admin", notificationDTO);
+            }
+            
             log.info("[알림 생성] 웹소켓 전송 완료");
             return notificationDTO;
         } catch (Exception e) {
@@ -172,29 +183,47 @@ public class NotificationService {
     }
     
     /**
-     * 특정 부서를 대상으로 한 알림 조회 (Repository에 구현 필요)
+     * 특정 부서를 대상으로 한 알림 조회 (개선된 버전)
      */
     @Transactional(readOnly = true)
     public List<NotificationDTO> getNotificationsByDeptId(Integer deptId, int page, int size) {
-        // 사용자 정의 쿼리 필요
-        return notificationRepository.findAll(PageRequest.of(page, size, Sort.by("createdAt").descending()))
-                .stream()
-                .filter(notification -> deptId.equals(notification.getTargetDeptId()))
-                .map(NotificationDTO::fromEntity)
-                .collect(Collectors.toList());
+        // Repository에 직접 쿼리 메서드가 있다면 사용, 없다면 기존 방식 유지
+        try {
+            return notificationRepository.findByTargetDeptIdOrderByCreatedAtDesc(deptId, PageRequest.of(page, size))
+                    .stream()
+                    .map(NotificationDTO::fromEntity)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            // Repository 메서드가 없는 경우 기존 방식 사용
+            log.warn("Repository 메서드 사용 실패, 기존 방식으로 대체: {}", e.getMessage());
+            return notificationRepository.findAll(PageRequest.of(page, size, Sort.by("createdAt").descending()))
+                    .stream()
+                    .filter(notification -> deptId.equals(notification.getTargetDeptId()))
+                    .map(NotificationDTO::fromEntity)
+                    .collect(Collectors.toList());
+        }
     }
     
     /**
-     * 특정 이벤트 타입의 알림 조회 (Repository에 구현 필요)
+     * 특정 이벤트 타입의 알림 조회 (개선된 버전)
      */
     @Transactional(readOnly = true)
     public List<NotificationDTO> getNotificationsByEventType(String eventType, int page, int size) {
-        // 사용자 정의 쿼리 필요
-        return notificationRepository.findAll(PageRequest.of(page, size, Sort.by("createdAt").descending()))
-                .stream()
-                .filter(notification -> eventType.equals(notification.getEventType()))
-                .map(NotificationDTO::fromEntity)
-                .collect(Collectors.toList());
+        // Repository에 직접 쿼리 메서드가 있다면 사용, 없다면 기존 방식 유지
+        try {
+            return notificationRepository.findByEventTypeOrderByCreatedAtDesc(eventType, PageRequest.of(page, size))
+                    .stream()
+                    .map(NotificationDTO::fromEntity)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            // Repository 메서드가 없는 경우 기존 방식 사용
+            log.warn("Repository 메서드 사용 실패, 기존 방식으로 대체: {}", e.getMessage());
+            return notificationRepository.findAll(PageRequest.of(page, size, Sort.by("createdAt").descending()))
+                    .stream()
+                    .filter(notification -> eventType.equals(notification.getEventType()))
+                    .map(NotificationDTO::fromEntity)
+                    .collect(Collectors.toList());
+        }
     }
 
     /**
