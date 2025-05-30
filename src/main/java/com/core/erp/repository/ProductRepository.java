@@ -14,46 +14,6 @@ import java.util.Optional;
 public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
 
     /**
-     * 특정 매장의 제품 목록 + 재고 조회
-     */
-    @Query(value = """
-SELECT
-    p.product_id AS productId,
-    p.pro_name AS productName,
-    p.pro_cost AS unitPrice,
-    p.pro_barcode AS barcode,
-    c.category_name AS categoryName,
-    COALESCE(s.quantity, 0) AS stockQty,
-    p.pro_stock_limit AS proStockLimit,
-    p.is_promo AS isPromo
-FROM product p
-LEFT JOIN category c ON p.category_id = c.category_id 
-    LEFT JOIN store_stock s\s
-    ON p.product_id = s.product_id\s
-    AND (s.store_id = :storeId)
-WHERE\s
-    p.is_promo IN (0, 2, 3)
-    AND (:productName IS NULL OR p.pro_name LIKE CONCAT('%', :productName, '%'))
-    AND (:barcode IS NULL OR p.pro_barcode = :barcode)
-    AND (:categoryId IS NULL OR p.category_id = :categoryId)
-    AND (:isPromo IS NULL OR p.is_promo = :isPromo)
-ORDER BY p.pro_name
-LIMIT :limit OFFSET :offset
-""", nativeQuery = true)
-    List<OrderProductProjection> searchProductsWithStock(
-            @Param("storeId") Integer storeId,
-            @Param("productName") String productName,
-            @Param("barcode") Long barcode,
-            @Param("categoryId") Integer categoryId,
-            @Param("isPromo") Integer isPromo,
-            @Param("limit") int limit,
-            @Param("offset") int offset
-    );
-
-
-
-
-    /**
      * 검색 조건에 맞는 제품 수 반환 (재고 포함 안 함)
      */
     @Query(value =

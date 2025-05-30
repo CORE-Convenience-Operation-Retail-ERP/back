@@ -1,7 +1,7 @@
 package com.core.erp.service;
 
 import com.core.erp.domain.*;
-import com.core.erp.dto.*;
+import com.core.erp.dto.PartialItemDTO;
 import com.core.erp.dto.order.*;
 import com.core.erp.repository.*;
 import jakarta.transaction.Transactional;
@@ -18,7 +18,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import jakarta.persistence.EntityManager;
+
 
 @Slf4j
 @Service
@@ -34,32 +35,79 @@ public class OrderService {
     private final HQStockService hqStockService;
     private final WarehouseStockRepository warehouseStockRepository;
     private final StockFlowService stockFlowService;
+    private final EntityManager entityManager;
 
     // 상품 목록 + 재고 조회 (발주 등록 시)
     public Page<OrderProductResponseDTO> getOrderProductList(
             Integer storeId, String productName, Long barcode,
-            Integer categoryId, Integer isPromo, int page, int size) {
+            Integer categoryId, Integer isPromo, int page, int size,
+            String sortBy, String sortDir
+    ) {
+        // 정렬 컬럼 매핑
+        String sortColumn = mapToColumnName(sortBy);
+        String direction = "desc".equalsIgnoreCase(sortDir) ? "DESC" : "ASC";
 
-        List<OrderProductProjection> projections = productRepository.searchProductsWithStock(
-                storeId, productName, barcode, categoryId, isPromo, size, page * size);
+        // LIMIT & OFFSET
+        int offset = page * size;
 
-        List<OrderProductResponseDTO> dtoList = projections.stream()
-                .map(p -> new OrderProductResponseDTO(
-                        p.getProductId(),
-                        p.getProductName(),
-                        p.getBarcode(),
-                        p.getCategoryName(),
-                        p.getUnitPrice(),
-                        p.getStockQty(),
-                        p.getProStockLimit(),
-                        p.getIsPromo()))
-                .collect(Collectors.toList());
+        // 💡 Native SQL 조립
+        String sql = "SELECT p.product_id AS productId, " +
+                "p.pro_name AS productName, " +
+                "p.pro_cost AS unitPrice, " +
+                "p.pro_barcode AS barcode, " +
+                "c.category_name AS categoryName, " +
+                "COALESCE(s.quantity, 0) AS stockQty, " +
+                "p.pro_stock_limit AS proStockLimit, " +
+                "p.is_promo AS isPromo " +
+                "FROM product p " +
+                "LEFT JOIN category c ON p.category_id = c.category_id " +
+                "LEFT JOIN store_stock s ON p.product_id = s.product_id AND s.store_id = :storeId " +
+                "WHERE p.is_promo IN (0, 2, 3) " +
+                "AND (:productName IS NULL OR p.pro_name LIKE CONCAT('%', :productName, '%')) " +
+                "AND (:barcode IS NULL OR p.pro_barcode = :barcode) " +
+                "AND (:categoryId IS NULL OR p.category_id = :categoryId) " +
+                "AND (:isPromo IS NULL OR p.is_promo = :isPromo) " +
+                "ORDER BY " + sortColumn + " " + direction + " " +
+                "LIMIT :limit OFFSET :offset";
 
+        @SuppressWarnings("unchecked")
+        List<Object[]> rows = entityManager.createNativeQuery(sql)
+                .setParameter("storeId", storeId)
+                .setParameter("productName", productName)
+                .setParameter("barcode", barcode)
+                .setParameter("categoryId", categoryId)
+                .setParameter("isPromo", isPromo)
+                .setParameter("limit", size)
+                .setParameter("offset", offset)
+                .getResultList();
+
+        // 수동 매핑 (필요 시 SqlResultSetMapping 써도 됨)
+        List<OrderProductResponseDTO> dtoList = rows.stream()
+                .map(row -> new OrderProductResponseDTO(
+                        (int) ((Number) row[0]).longValue(),          // productId
+                        (String) row[1],                        // productName
+                        ((Number) row[3]).longValue(),          // barcode
+                        (String) row[4],                        // categoryName
+                        ((Number) row[2]).intValue(),           // unitPrice
+                        ((Number) row[5]).intValue(),           // stockQty
+                        ((Number) row[6]).intValue(),           // proStockLimit
+                        ((Number) row[7]).intValue()            // isPromo
+                ))
+                .toList();
 
         int total = productRepository.countProductsWithStock(
-                storeId, productName, barcode, categoryId, isPromo);
+                storeId, productName, barcode, categoryId, isPromo
+        );
 
         return new PageImpl<>(dtoList, PageRequest.of(page, size), total);
+    }
+
+    private String mapToColumnName(String sortBy) {
+        return switch (sortBy) {
+            case "productName" -> "p.pro_name";
+            case "productId"   -> "p.product_id";
+            default            -> "p.pro_name"; // 기본값
+        };
     }
 
 
@@ -142,19 +190,6 @@ public class OrderService {
         }
     }
 
-
-//    public Page<PurchaseOrderDTO> getOrderHistory(Integer storeId, int page, int size) {
-//        Pageable pageable = PageRequest.of(page, size);
-//
-//        Page<PurchaseOrderEntity> orderPage =
-//                purchaseOrderRepository.findByStore_StoreIdOrderByOrderIdDesc(storeId, pageable);
-//
-//        List<PurchaseOrderDTO> dtoList = orderPage.stream()
-//                .map(PurchaseOrderDTO::new)
-//                .toList();
-//
-//        return new PageImpl<>(dtoList, pageable, orderPage.getTotalElements());
-//    }
 
     public List<PurchaseOrderItemDTO> getOrderDetail(Long orderId, Integer loginStoreId, String role) {
         PurchaseOrderEntity order = purchaseOrderRepository.findById(orderId)
@@ -397,7 +432,7 @@ public class OrderService {
         log.info("요청 데이터 DTO 존재 여부: {}", dto != null);
         log.info("DTO 내부 items: {}", dto.getItems());
 
-        if (dto == null || dto.getItems() == null || dto.getItems().isEmpty()) {
+        if (dto.getItems() == null || dto.getItems().isEmpty()) {
             throw new IllegalArgumentException("수정할 항목이 없습니다.");
         }
 
