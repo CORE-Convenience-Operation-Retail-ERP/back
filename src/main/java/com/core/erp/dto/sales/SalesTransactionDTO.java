@@ -31,6 +31,10 @@ public class SalesTransactionDTO {
     private Integer ageGroup;
     private Integer gender;
 
+    // 현금영수증 관련 필드
+    private String receiptType;
+    private String receiptIdentity;
+
 
     // Entity → DTO 변환 생성자
     public SalesTransactionDTO(SalesTransactionEntity entity, List<SalesDetailDTO> details) {
@@ -50,6 +54,8 @@ public class SalesTransactionDTO {
         this.createdAt = entity.getCreatedAt();
         this.ageGroup = entity.getAgeGroup();
         this.gender = entity.getGender();
+        this.receiptType = entity.getReceiptType();
+        this.receiptIdentity = entity.getReceiptIdentity();
         this.details = details;
 
     }

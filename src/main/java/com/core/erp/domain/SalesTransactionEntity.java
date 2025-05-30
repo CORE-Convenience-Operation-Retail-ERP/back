@@ -69,6 +69,12 @@ public class SalesTransactionEntity {
     @Column(name = "gender")
     private Integer gender;
 
+    @Column(name = "receipt_type")
+    private String receiptType; // 현금영수증 구분 (소득공제/지출증빙 등)
+
+    @Column(name = "receipt_identity")
+    private String receiptIdentity; // 휴대폰번호 또는 사업자번호 등
+
     @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     private List<SalesDetailEntity> salesDetails;
@@ -94,5 +100,8 @@ public class SalesTransactionEntity {
         this.createdAt = dto.getCreatedAt();
         this.ageGroup = dto.getAgeGroup();
         this.gender = dto.getGender();
+        this.receiptType = dto.getReceiptType();
+        this.receiptIdentity = dto.getReceiptIdentity();
+
     }
 }

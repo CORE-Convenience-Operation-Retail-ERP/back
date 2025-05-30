@@ -67,6 +67,9 @@ public class PosService {
         tx.setPaidAt(LocalDateTime.now());
         tx.setCreatedAt(LocalDateTime.now());
 
+        tx.setReceiptType(dto.getReceiptType());
+        tx.setReceiptIdentity(dto.getReceiptIdentity());
+
         // 3. 트랜잭션 저장
         salesTransactionRepository.save(tx);
 

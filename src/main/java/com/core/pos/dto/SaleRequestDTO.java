@@ -17,5 +17,9 @@ public class SaleRequestDTO {
     private String ageGroup;
     private String gender;
 
+    // 현금영수증 관련 필드 추가
+    private String receiptType;      // "소득공제", "지출증빙"
+    private String receiptIdentity;
+
 }
 
