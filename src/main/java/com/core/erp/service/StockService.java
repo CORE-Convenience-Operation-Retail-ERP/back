@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.ArrayList;
 
 @Service
 @RequiredArgsConstructor
@@ -196,5 +199,47 @@ public class StockService {
         );
     }
 
+    /**
+     * 엑셀 다운로드용 재고 데이터 조회
+     */
+    public List<Map<String, Object>> getStocksForExcel(Integer productId, Integer storeId, String productName, Long barcode, Integer categoryId) {
+        // 대량 데이터 조회를 위해 큰 페이지 크기 설정 (unpaged 대신)
+        Pageable largePage = PageRequest.of(0, 10000);
+        Page<TotalStockDTO> stockPage = storeStockRepository.findStockSummary(productId, storeId, productName, barcode, categoryId, largePage);
+        
+        List<Map<String, Object>> result = new ArrayList<>();
+        
+        for (TotalStockDTO stock : stockPage.getContent()) {
+            Map<String, Object> stockData = new HashMap<>();
+            stockData.put("productId", stock.getProductId());
+            stockData.put("productName", stock.getProductName());
+            stockData.put("barcode", stock.getBarcode());
+            stockData.put("storeName", stock.getStoreName());
+            stockData.put("storeQuantity", stock.getStoreQuantity());
+            stockData.put("warehouseQuantity", stock.getWarehouseQuantity());
+            stockData.put("totalQuantity", stock.getTotalQuantity());
+            stockData.put("latestInDate", stock.getLatestInDate());
+            stockData.put("promoStatus", getPromoStatusText(stock.getPromoStatus()));
+            
+            result.add(stockData);
+        }
+        
+        return result;
+    }
+    
+    /**
+     * 프로모션 상태 텍스트 변환
+     */
+    private String getPromoStatusText(String promoStatus) {
+        if (promoStatus == null) return "알수없음";
+        
+        return switch (promoStatus) {
+            case "0" -> "판매중";
+            case "1" -> "단종";
+            case "2" -> "1+1";
+            case "3" -> "2+1";
+            default -> "알수없음";
+        };
+    }
 
 }
