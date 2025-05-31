@@ -37,6 +37,15 @@ public class ChatMessageEntity {
     @Enumerated(EnumType.STRING)
     private MessageType messageType;
 
+    @Column(name = "is_read", columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean isRead = false;
+
+    @Column(name = "read_by", columnDefinition = "JSON")
+    private String readBy;
+
+    @Column(name = "reactions", columnDefinition = "JSON")
+    private String reactions;
+
     public enum MessageType {
         CHAT, JOIN, LEAVE
     }
@@ -44,5 +53,6 @@ public class ChatMessageEntity {
     @PrePersist
     protected void onCreate() {
         this.sentAt = LocalDateTime.now();
+        this.isRead = false;
     }
 } 

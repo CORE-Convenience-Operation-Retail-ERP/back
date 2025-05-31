@@ -4,6 +4,8 @@ import com.core.erp.domain.*;
 import com.core.erp.dto.CustomPrincipal;
 import com.core.erp.dto.chat.ChatMessageDTO;
 import com.core.erp.dto.chat.ChatRoomDTO;
+import com.core.erp.dto.chat.MessageReactionDTO;
+import com.core.erp.dto.chat.TypingStatusDTO;
 import com.core.erp.repository.ChatMessageRepository;
 import com.core.erp.repository.ChatRoomRepository;
 import com.core.erp.repository.EmployeeRepository;
@@ -14,18 +16,23 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ChatService {
 
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final EmployeeRepository employeeRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * 사용자의 모든 채팅방 목록 조회
@@ -367,5 +374,143 @@ public class ChatService {
                     return employeeMap;
                 })
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 메시지 읽음 처리
+     */
+    public void markMessagesAsRead(Long roomId, Integer empId) {
+        List<ChatMessageEntity> unreadMessages = chatMessageRepository
+                .findByRoomIdAndNotReadByUser(roomId, empId);
+        
+        ChatRoomEntity chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new RuntimeException("채팅방을 찾을 수 없습니다."));
+        
+        for (ChatMessageEntity message : unreadMessages) {
+            try {
+                Map<String, String> readBy = parseReadBy(message.getReadBy());
+                readBy.put(empId.toString(), LocalDateTime.now().toString());
+                message.setReadBy(objectMapper.writeValueAsString(readBy));
+                
+                // 모든 멤버가 읽었는지 확인 (발신자 제외)
+                if (readBy.size() >= chatRoom.getMembers().size() - 1) {
+                    message.setIsRead(true);
+                }
+                
+                chatMessageRepository.save(message);
+                
+                // 읽음 상태 업데이트를 웹소켓으로 전송
+                ChatMessageDTO messageDTO = ChatMessageDTO.fromEntity(message);
+                messagingTemplate.convertAndSend("/topic/chat/room/" + roomId + "/read", messageDTO);
+                
+            } catch (Exception e) {
+                System.err.println("메시지 읽음 처리 오류: " + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * 타이핑 상태 처리
+     */
+    public void handleTypingStatus(TypingStatusDTO typingStatus, CustomPrincipal principal) {
+        typingStatus.setSenderId(principal.getEmpId());
+        typingStatus.setSenderName(principal.getEmpName());
+        
+        // 타이핑 상태를 해당 채팅방의 다른 사용자들에게 전송
+        messagingTemplate.convertAndSend(
+            "/topic/chat/room/" + typingStatus.getRoomId() + "/typing", 
+            typingStatus
+        );
+    }
+
+    /**
+     * 이모지 반응 처리
+     */
+    public void handleMessageReaction(MessageReactionDTO reactionDTO, CustomPrincipal principal) {
+        ChatMessageEntity message = chatMessageRepository.findById(reactionDTO.getMessageId())
+                .orElseThrow(() -> new IllegalArgumentException("메시지를 찾을 수 없습니다."));
+        
+        try {
+            Map<String, Object> reactions = parseReactions(message.getReactions());
+            String emoji = reactionDTO.getEmoji();
+            String userId = principal.getEmpId().toString();
+            
+            @SuppressWarnings("unchecked")
+            List<String> userList = (List<String>) reactions.getOrDefault(emoji, new ArrayList<>());
+            
+            if ("add".equals(reactionDTO.getAction())) {
+                if (!userList.contains(userId)) {
+                    userList.add(userId);
+                }
+            } else if ("remove".equals(reactionDTO.getAction())) {
+                userList.remove(userId);
+            }
+            
+            if (userList.isEmpty()) {
+                reactions.remove(emoji);
+            } else {
+                reactions.put(emoji, userList);
+            }
+            
+            message.setReactions(objectMapper.writeValueAsString(reactions));
+            chatMessageRepository.save(message);
+            
+            // 반응 업데이트를 웹소켓으로 전송
+            reactionDTO.setUserId(principal.getEmpId());
+            reactionDTO.setUserName(principal.getEmpName());
+            messagingTemplate.convertAndSend(
+                "/topic/chat/room/" + message.getChatRoom().getRoomId() + "/reaction", 
+                reactionDTO
+            );
+            
+        } catch (Exception e) {
+            System.err.println("이모지 반응 처리 오류: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 메시지 검색
+     */
+    public List<ChatMessageDTO> searchMessages(Long roomId, String searchTerm, Integer empId) {
+        ChatRoomEntity chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new RuntimeException("채팅방을 찾을 수 없습니다."));
+        
+        EmployeeEntity employee = employeeRepository.findById(empId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+        
+        // 사용자가 해당 채팅방의 멤버인지 확인
+        if (!chatRoom.getMembers().contains(employee)) {
+            throw new IllegalArgumentException("해당 채팅방의 멤버가 아닙니다.");
+        }
+        
+        List<ChatMessageEntity> messages = chatMessageRepository
+                .findByRoomIdAndContentContainingIgnoreCase(roomId, searchTerm);
+        
+        return messages.stream()
+                .map(ChatMessageDTO::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    // 헬퍼 메서드들
+    private Map<String, String> parseReadBy(String readByJson) {
+        if (readByJson == null || readByJson.trim().isEmpty()) {
+            return new HashMap<>();
+        }
+        try {
+            return objectMapper.readValue(readByJson, new TypeReference<Map<String, String>>() {});
+        } catch (Exception e) {
+            return new HashMap<>();
+        }
+    }
+
+    private Map<String, Object> parseReactions(String reactionsJson) {
+        if (reactionsJson == null || reactionsJson.trim().isEmpty()) {
+            return new HashMap<>();
+        }
+        try {
+            return objectMapper.readValue(reactionsJson, new TypeReference<Map<String, Object>>() {});
+        } catch (Exception e) {
+            return new HashMap<>();
+        }
     }
 } 

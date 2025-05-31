@@ -3,6 +3,8 @@ package com.core.erp.controller;
 import com.core.erp.dto.CustomPrincipal;
 import com.core.erp.dto.chat.ChatMessageDTO;
 import com.core.erp.dto.chat.ChatRoomDTO;
+import com.core.erp.dto.chat.MessageReactionDTO;
+import com.core.erp.dto.chat.TypingStatusDTO;
 import com.core.erp.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -113,6 +115,33 @@ public class ChatController {
     }
 
     /**
+     * 메시지 읽음 처리
+     */
+    @PostMapping("/rooms/{roomId}/read")
+    public ResponseEntity<Void> markMessagesAsRead(
+            @PathVariable Long roomId,
+            Authentication authentication) {
+        
+        CustomPrincipal principal = (CustomPrincipal) authentication.getPrincipal();
+        chatService.markMessagesAsRead(roomId, principal.getEmpId());
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 메시지 검색
+     */
+    @GetMapping("/rooms/{roomId}/search")
+    public ResponseEntity<List<ChatMessageDTO>> searchMessages(
+            @PathVariable Long roomId,
+            @RequestParam String q,
+            Authentication authentication) {
+        
+        CustomPrincipal principal = (CustomPrincipal) authentication.getPrincipal();
+        List<ChatMessageDTO> results = chatService.searchMessages(roomId, q, principal.getEmpId());
+        return ResponseEntity.ok(results);
+    }
+
+    /**
      * 웹소켓을 통한 메시지 전송
      */
     @MessageMapping("/chat.sendMessage")
@@ -121,6 +150,28 @@ public class ChatController {
         CustomPrincipal principal = (CustomPrincipal) authentication.getPrincipal();
         
         chatService.sendMessage(messageDTO, principal);
+    }
+
+    /**
+     * 웹소켓을 통한 타이핑 상태 전송
+     */
+    @MessageMapping("/chat.typing")
+    public void handleTyping(@Payload TypingStatusDTO typingStatus, SimpMessageHeaderAccessor headerAccessor) {
+        Authentication authentication = (Authentication) headerAccessor.getUser();
+        CustomPrincipal principal = (CustomPrincipal) authentication.getPrincipal();
+        
+        chatService.handleTypingStatus(typingStatus, principal);
+    }
+
+    /**
+     * 웹소켓을 통한 이모지 반응 처리
+     */
+    @MessageMapping("/chat.reaction")
+    public void handleReaction(@Payload MessageReactionDTO reactionDTO, SimpMessageHeaderAccessor headerAccessor) {
+        Authentication authentication = (Authentication) headerAccessor.getUser();
+        CustomPrincipal principal = (CustomPrincipal) authentication.getPrincipal();
+        
+        chatService.handleMessageReaction(reactionDTO, principal);
     }
 
     /**

@@ -138,59 +138,27 @@ public class AnnualLeaveService {
             if (approveStatus == 1) { // 1: 승인
                 attendanceInfoService.deductAnnualLeave(leaveReq.getEmployee().getEmpId(), leaveReq.getDays());
                 result.put("message", "연차가 승인되었습니다.");
-                // 알림 생성 (인사팀+MASTER 전체에게)
+                // 신청자에게 알림 전송
                 try {
-                    List<EmployeeEntity> targets = new ArrayList<>();
-                    targets.addAll(employeeRepository.findByDepartment_DeptId(4));
-                    List<EmployeeEntity> masters = employeeRepository.findByDepartment_DeptId(10);
-                    for (EmployeeEntity master : masters) {
-                        if (targets.stream().noneMatch(e -> e.getEmpId() == master.getEmpId())) {
-                            targets.add(master);
-                        }
-                    }
-                    for (EmployeeEntity target : targets) {
-                        notificationService.createLeaveNotification(
-                            target.getEmpId(),
-                            "연차가 승인되었습니다.",
-                            "/headquarters/hr/annual-leave"
-                        );
-                    }
-                    // 신청자(사원)에게도 알림 전송
                     notificationService.createLeaveNotification(
                         leaveReq.getEmployee().getEmpId(),
                         "신청하신 연차가 승인되었습니다.",
                         "/headquarters/hr/annual-leave"
                     );
                 } catch (Exception e) {
-                    System.err.println("[연차승인] 인사팀+MASTER+신청자 알림 생성 실패: " + e.getMessage());
+                    System.err.println("[연차승인] 신청자 알림 생성 실패: " + e.getMessage());
                 }
             } else if (approveStatus == 2) { // 2: 반려
                 result.put("message", "연차가 반려되었습니다.");
-                // 알림 생성 (인사팀+MASTER 전체에게)
+                // 신청자에게 알림 전송
                 try {
-                    List<EmployeeEntity> targets = new ArrayList<>();
-                    targets.addAll(employeeRepository.findByDepartment_DeptId(4));
-                    List<EmployeeEntity> masters = employeeRepository.findByDepartment_DeptId(10);
-                    for (EmployeeEntity master : masters) {
-                        if (targets.stream().noneMatch(e -> e.getEmpId() == master.getEmpId())) {
-                            targets.add(master);
-                        }
-                    }
-                    for (EmployeeEntity target : targets) {
-                        notificationService.createLeaveNotification(
-                            target.getEmpId(),
-                            "연차가 반려되었습니다.",
-                            "/headquarters/hr/annual-leave"
-                        );
-                    }
-                    // 신청자(사원)에게도 알림 전송
                     notificationService.createLeaveNotification(
                         leaveReq.getEmployee().getEmpId(),
                         "신청하신 연차가 반려되었습니다.",
                         "/headquarters/hr/annual-leave"
                     );
                 } catch (Exception e) {
-                    System.err.println("[연차반려] 인사팀+MASTER+신청자 알림 생성 실패: " + e.getMessage());
+                    System.err.println("[연차반려] 신청자 알림 생성 실패: " + e.getMessage());
                 }
             } else if (approveStatus == 0) { // 0: 대기 상태로 변경
                 result.put("message", "연차가 대기 상태로 변경되었습니다.");
@@ -448,59 +416,27 @@ public class AnnualLeaveService {
                 if (newStatus == 1 && previousStatus != 1) { // 1: 승인으로 변경된 경우
                     attendanceInfoService.deductAnnualLeave(leaveReq.getEmployee().getEmpId(), leaveReq.getDays());
                     result.put("message", "연차가 승인되었습니다.");
-                    // 알림 생성 (인사팀+MASTER 전체에게)
+                    // 신청자에게 알림 전송
                     try {
-                        List<EmployeeEntity> targets = new ArrayList<>();
-                        targets.addAll(employeeRepository.findByDepartment_DeptId(4));
-                        List<EmployeeEntity> masters = employeeRepository.findByDepartment_DeptId(10);
-                        for (EmployeeEntity master : masters) {
-                            if (targets.stream().noneMatch(e -> e.getEmpId() == master.getEmpId())) {
-                                targets.add(master);
-                            }
-                        }
-                        for (EmployeeEntity target : targets) {
-                            notificationService.createLeaveNotification(
-                                target.getEmpId(),
-                                "연차가 승인되었습니다.",
-                                "/headquarters/hr/annual-leave"
-                            );
-                        }
-                        // 신청자(사원)에게도 알림 전송
                         notificationService.createLeaveNotification(
                             leaveReq.getEmployee().getEmpId(),
                             "신청하신 연차가 승인되었습니다.",
                             "/headquarters/hr/annual-leave"
                         );
                     } catch (Exception e) {
-                        System.err.println("[연차승인] 인사팀+MASTER+신청자 알림 생성 실패: " + e.getMessage());
+                        System.err.println("[연차승인] 신청자 알림 생성 실패: " + e.getMessage());
                     }
                 } else if (newStatus == 2 && previousStatus != 2) { // 2: 반려로 변경된 경우
                     result.put("message", "연차가 반려되었습니다.");
-                    // 알림 생성 (인사팀+MASTER 전체에게)
+                    // 신청자에게 알림 전송
                     try {
-                        List<EmployeeEntity> targets = new ArrayList<>();
-                        targets.addAll(employeeRepository.findByDepartment_DeptId(4));
-                        List<EmployeeEntity> masters = employeeRepository.findByDepartment_DeptId(10);
-                        for (EmployeeEntity master : masters) {
-                            if (targets.stream().noneMatch(e -> e.getEmpId() == master.getEmpId())) {
-                                targets.add(master);
-                            }
-                        }
-                        for (EmployeeEntity target : targets) {
-                            notificationService.createLeaveNotification(
-                                target.getEmpId(),
-                                "연차가 반려되었습니다.",
-                                "/headquarters/hr/annual-leave"
-                            );
-                        }
-                        // 신청자(사원)에게도 알림 전송
                         notificationService.createLeaveNotification(
                             leaveReq.getEmployee().getEmpId(),
                             "신청하신 연차가 반려되었습니다.",
                             "/headquarters/hr/annual-leave"
                         );
                     } catch (Exception e) {
-                        System.err.println("[연차반려] 인사팀+MASTER+신청자 알림 생성 실패: " + e.getMessage());
+                        System.err.println("[연차반려] 신청자 알림 생성 실패: " + e.getMessage());
                     }
                 } else if (newStatus == 0 && previousStatus != 0) { // 0: 대기 상태로 변경된 경우
                     result.put("message", "연차가 대기 상태로 변경되었습니다.");

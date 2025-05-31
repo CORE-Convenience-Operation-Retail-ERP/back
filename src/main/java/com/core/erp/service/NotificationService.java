@@ -54,20 +54,27 @@ public class NotificationService {
             }
             log.info("[알림 생성] 사용자 조회 성공: empId={}, empName={}, departId={}", user.getEmpId(), user.getEmpName(), user.getDepartment() != null ? user.getDepartment().getDeptId() : null);
             Integer deptId = user.getDepartment() != null ? user.getDepartment().getDeptId() : null;
-            // eventType별 부서 허용 정책 분기
-            if (eventType != null && (eventType.equals("NOTICE") || eventType.equals("STORE_INQUIRY_REPLY"))) {
-                // 공지사항, 점주 문의글 답변 알림은 3~10번 부서 허용
-                if (deptId == null || deptId < 3 || deptId > 10) {
-                    log.error("[알림 생성] 부서 ID 제한으로 알림 생성 실패: deptId={}", deptId);
-                    throw new RuntimeException("알림을 받을 수 없는 부서입니다.");
-                }
-            } else {
-                // 그 외 알림은 4~10번 부서만 허용
-                if (deptId == null || deptId < 4 || deptId > 10) {
-                    log.error("[알림 생성] 부서 ID 제한으로 알림 생성 실패: deptId={}", deptId);
-                    throw new RuntimeException("본사 직원만 알림을 받을 수 있습니다.");
+            
+            // MASTER 권한자(10번 부서)는 부서 제한 없이 모든 알림 수신 가능
+            boolean isMaster = (deptId != null && deptId == 10);
+            
+            if (!isMaster) {
+                // eventType별 부서 허용 정책 분기 (MASTER가 아닌 경우만)
+                if (eventType != null && (eventType.equals("NOTICE") || eventType.equals("STORE_INQUIRY_REPLY"))) {
+                    // 공지사항, 점주 문의글 답변 알림은 3~10번 부서 허용
+                    if (deptId == null || deptId < 3 || deptId > 10) {
+                        log.error("[알림 생성] 부서 ID 제한으로 알림 생성 실패: deptId={}", deptId);
+                        throw new RuntimeException("알림을 받을 수 없는 부서입니다.");
+                    }
+                } else {
+                    // 그 외 알림은 4~10번 부서만 허용
+                    if (deptId == null || deptId < 4 || deptId > 10) {
+                        log.error("[알림 생성] 부서 ID 제한으로 알림 생성 실패: deptId={}", deptId);
+                        throw new RuntimeException("본사 직원만 알림을 받을 수 있습니다.");
+                    }
                 }
             }
+            
             NotificationEntity notification = NotificationEntity.builder()
                     .user(user)
                     .targetDeptId(targetDeptId)
@@ -105,6 +112,10 @@ public class NotificationService {
                 log.info("[알림 생성] 관리자 알림 전송: /topic/notifications/admin");
                 messagingTemplate.convertAndSend("/topic/notifications/admin", notificationDTO);
             }
+            
+            // MASTER 권한자들에게 모든 알림 전송 (10번 부서)
+            log.info("[알림 생성] MASTER 알림 전송: /topic/notifications/dept/10");
+            messagingTemplate.convertAndSend("/topic/notifications/dept/10", notificationDTO);
             
             log.info("[알림 생성] 웹소켓 전송 완료");
             return notificationDTO;
