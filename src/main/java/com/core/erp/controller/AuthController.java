@@ -8,9 +8,13 @@ import com.core.erp.security.JwtTokenProvider;
 import com.core.erp.service.EmailService;
 import com.core.erp.repository.EmailVerificationRepository;
 import com.core.erp.service.NotificationService;
+import com.core.erp.service.S3Service;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -41,8 +45,10 @@ public class AuthController {
     private EmailService emailService;
     @Autowired
     private NotificationService notificationService;
+    @Autowired
+    private S3Service s3Service;
     
-    // 파일 업로드 경로 설정
+    // 파일 업로드 경로 설정 (로컬 백업용)
     private final String uploadDir = "uploads/";
 
     @PostMapping("/login")
@@ -161,10 +167,20 @@ public class AuthController {
                 employee.setDepartment(department);
             }
             
-            // 파일 업로드 처리
+            // 파일 업로드 처리 - S3 사용
             if (file != null && !file.isEmpty()) {
-                String fileName = saveFile(file);
-                employee.setEmpImg(fileName);
+                try {
+                    String folder;
+                    if ("점주".equals(request.getEmpRole())) {
+                        folder = "business-license"; // 사업자등록증
+                    } else {
+                        folder = "profile"; // 프로필 사진
+                    }
+                    String imageUrl = s3Service.uploadImage(file, folder);
+                    employee.setEmpImg(imageUrl);
+                } catch (Exception e) {
+                    throw new RuntimeException("이미지 업로드 실패: " + e.getMessage());
+                }
             }
             
             // 기타 필수 필드 기본값 설정
@@ -213,26 +229,6 @@ public class AuthController {
         }
     }
     
-    // 파일 저장 메소드
-    private String saveFile(MultipartFile file) throws IOException {
-        // 업로드 디렉토리 생성
-        File directory = new File(uploadDir);
-        if (!directory.exists()) {
-            directory.mkdirs();
-        }
-        
-        // 파일명 생성 (중복 방지를 위해 UUID 사용)
-        String originalFilename = file.getOriginalFilename();
-        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-        String savedFileName = UUID.randomUUID().toString() + extension;
-        
-        // 파일 저장
-        Path targetPath = Paths.get(uploadDir + savedFileName);
-        Files.copy(file.getInputStream(), targetPath);
-        
-        return savedFileName;
-    }
-
     // 이메일 중복 확인 API
     @PostMapping("/check-email")
     public ResponseEntity<?> checkEmail(@RequestBody Map<String, String> request) {
@@ -324,6 +320,27 @@ public class AuthController {
                 "success", false,
                 "message", "인증 코드가 일치하지 않거나 만료되었습니다."
             ));
+        }
+    }
+
+    /**
+     * 로컬 업로드 파일 서빙 (기존 파일들을 위한 임시 엔드포인트)
+     */
+    @GetMapping("/uploads/{filename}")
+    public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
+        try {
+            Path filePath = Paths.get(uploadDir).resolve(filename);
+            Resource resource = new UrlResource(filePath.toUri());
+            
+            if (resource.exists() && resource.isReadable()) {
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
+                        .body(resource);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
         }
     }
 
