@@ -25,7 +25,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/attendance/part-timer")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class PartTimeAttendanceController {
 
@@ -38,7 +38,7 @@ public class PartTimeAttendanceController {
     /**
      *  출근 체크 (QR 기반)
      */
-    @PostMapping("/check-in")
+    @PostMapping("/public/attendance/part-timer/check-in")
     @Transactional
     public ResponseEntity<?> checkIn(HttpServletRequest request, @RequestBody Map<String, Object> payload) {
         try {
@@ -72,10 +72,14 @@ public class PartTimeAttendanceController {
                             pt.getPartTimerId(),
                             today.atStartOfDay(),
                             today.atTime(23, 59, 59)
-                    ).orElseThrow(() -> new RuntimeException("해당 일자의 스케줄이 없습니다."));
+                    ).orElse(null);
 
-            int status = inTime.isAfter(schedule.getStartTime()) ? 1 : 0;
+            int status = 0; // 기본값: 정상 출근
+            if (schedule != null && inTime.isAfter(schedule.getStartTime())) {
+                status = 1; // 지각
+            }
 
+            // 출근 기록 저장
             AttendanceEntity attend = new AttendanceEntity();
             attend.setPartTimer(pt);
             attend.setStore(store);
@@ -85,10 +89,13 @@ public class PartTimeAttendanceController {
             attend.setAttendStatus(status);
             attendanceRepository.save(attend);
 
+
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "message", "출근 완료",
-                    "status", (status == 0 ? "정상 출근" : "지각")
+                    "status", (schedule == null ? "스케줄 없음 (정상 출근)" : (status == 0 ? "정상 출근" : "지각")),
+                    "isCheckedInToday", true,
+                    "partTimerId", pt.getPartTimerId()
             ));
 
         } catch (Exception e) {
@@ -102,12 +109,12 @@ public class PartTimeAttendanceController {
     /**
      *  퇴근 체크 (QR 기반)
      */
-    @PostMapping("/check-out")
+    @PostMapping("/public/attendance/part-timer/check-out")
     @Transactional
     public ResponseEntity<?> checkOut(HttpServletRequest request, @RequestBody Map<String, Object> payload) {
         try {
             String deviceIdFromQr = (String) payload.get("deviceId");
-            String deviceIdFromRequest = request.getHeader("X-DEVICE-ID"); // 📌 실제 기기 정보
+            String deviceIdFromRequest = request.getHeader("X-DEVICE-ID");
 
             if (deviceIdFromRequest == null || !deviceIdFromQr.equals(deviceIdFromRequest)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of(
@@ -125,7 +132,7 @@ public class PartTimeAttendanceController {
                     .orElseThrow(() -> new RuntimeException("해당 기기로 등록된 아르바이트가 없습니다."));
 
             AttendanceEntity attend = attendanceRepository
-                    .findByPartTimerAndAttendDate(pt, today)
+                    .findTopByPartTimerAndAttendDateOrderByInTimeAsc(pt, today)
                     .orElseThrow(() -> new RuntimeException("출근 기록이 없습니다. 퇴근할 수 없습니다."));
 
             if (attend.getOutTime() != null) {
@@ -138,7 +145,9 @@ public class PartTimeAttendanceController {
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "message", "퇴근 완료",
-                    "outTime", outTime.toString()
+                    "outTime", outTime.toString(),
+                    "isCheckedInToday", false,
+                    "partTimerId", pt.getPartTimerId()
             ));
 
         } catch (Exception e) {
@@ -150,7 +159,7 @@ public class PartTimeAttendanceController {
     }
 
 
-    @GetMapping("/list")
+    @GetMapping("/attendance/part-timer/list")
     public ResponseEntity<?> getAttendanceList(
             @RequestParam Integer storeId,
             @RequestParam(required = false) Integer partTimerId,

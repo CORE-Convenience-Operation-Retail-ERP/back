@@ -77,11 +77,15 @@ public interface AttendanceRepository extends JpaRepository<AttendanceEntity, In
     WHERE a.partTimer.partTimerId = :partTimerId
       AND a.store.storeId = :storeId
       AND a.attendDate = :today
+      AND a.outTime IS NULL
 """)
-    boolean existsByPartTimerIdAndStoreIdAndAttendDate(
+    boolean isCurrentlyCheckedIn(
             @Param("partTimerId") Long partTimerId,
             @Param("storeId") Integer storeId,
             @Param("today") LocalDate today
     );
 
+    Optional<AttendanceEntity> findTopByPartTimerAndAttendDateOrderByInTimeAsc(PartTimerEntity pt, LocalDate today);
+
+    void deleteAllByPartTimer(PartTimerEntity entity);
 }

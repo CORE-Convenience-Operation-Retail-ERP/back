@@ -19,6 +19,7 @@ public class ShiftScheduleDTO {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private String bgColor;
+    private String partImg;
 
 
     // Entity → DTO 변환 생성자
@@ -29,5 +30,6 @@ public class ShiftScheduleDTO {
         this.startTime = entity.getStartTime();
         this.endTime = entity.getEndTime();
         this.bgColor = entity.getBgColor();
+        this.partImg = entity.getPartTimer() != null ? entity.getPartTimer().getPartImg() : null;
     }
 }

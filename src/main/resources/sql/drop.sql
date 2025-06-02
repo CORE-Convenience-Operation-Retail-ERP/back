@@ -51,3 +51,4 @@ DROP TABLE IF EXISTS `anomaly_detection`;
 DROP TABLE IF EXISTS `store`;
 DROP TABLE IF EXISTS `flyway_schema_history`;
 DROP TABLE IF EXISTS `email_verification`;
+DROP TABLE IF EXISTS `verified_device`;

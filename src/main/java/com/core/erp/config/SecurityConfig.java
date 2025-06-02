@@ -94,6 +94,7 @@ public class SecurityConfig {
             "/api/erp/statistics/**",
             "/api/attendance/part-timer/**",
             "/api/products/**",
+            "/api/store/stock/transfer",
     };
 
     public static final String[] HQ_COMMON_READ_PATHS = {
@@ -111,7 +112,7 @@ public class SecurityConfig {
             "/api/departments",
             "/api/employees",
             "/api/employees/{empId}",
-            "/api/stores",
+//            "/api/stores",
             "/api/stores/owners",
             "/api/store-inquiries/**",
             "/api/dashboard/**",
@@ -138,6 +139,7 @@ public class SecurityConfig {
             "/api/products/**",
             "/api/hq-stock",
             "/api/hq-stock/**",
+            "/api/stores",
     };
 
 
@@ -203,7 +205,13 @@ public class SecurityConfig {
                                 "/api/categories/tree", // 상품 정보 조회 API
                                 "/api/barcode",
                                 "/api/customer/**",  // 모든 고객 관련 API 허용
-                                "/ws/**"            // WebSocket 엔드포인트 허용
+                                "/ws/**",            // WebSocket 엔드포인트 허용
+                                "/api/public/attendance/part-timer/**",
+                                "/api/public/send-code",
+                                "/api/public/verify-device",
+                                "api/public/is-verified",
+                                "api/public/verified-device",
+                                "/api/public/**"
                         ).permitAll() // 모든 사용자 접근 허용
 
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // OPTIONS 메서드 모두 허용

@@ -7,6 +7,7 @@ import com.core.erp.dto.partTimer.PartTimerSearchDTO;
 import com.core.erp.repository.AttendanceRepository;
 import com.core.erp.repository.PartTimerRepository;
 import com.core.erp.repository.StoreRepository;
+import com.core.erp.util.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
@@ -17,12 +18,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -35,8 +34,11 @@ public class PartTimeService {
     private final PartTimerRepository partTimerRepository;
     private final StoreRepository storeRepository;
     private final AttendanceRepository attendanceRepository;
+    private final S3Uploader s3Uploader;
+    private static final String DEFAULT_IMAGE_URL = "https://core-erp-frontend.s3.ap-northeast-2.amazonaws.com/defaults/profile-default.png";
 
-    private final String uploadDir = System.getProperty("user.dir") + "/uploads/parttimer/";
+
+    private final String uploadDir = System.getProperty("user.dir") + "/uploads/partTimer/";
 
     // 역할 헬퍼 메서드
     private boolean isStore(String role) {
@@ -97,7 +99,7 @@ public class PartTimeService {
             PartTimerDTO dto = new PartTimerDTO(pt);
 
             // 오늘 출근 여부 판단
-            boolean isCheckedIn = attendanceRepository.existsByPartTimerIdAndStoreIdAndAttendDate(
+            boolean isCheckedIn = attendanceRepository.isCurrentlyCheckedIn(
                     (long) pt.getPartTimerId(),
                     pt.getStore().getStoreId(),
                     LocalDate.now()
@@ -129,10 +131,10 @@ public class PartTimeService {
         entity.setDeviceId(partTimerDTO.getDeviceId());
         entity.setDeviceName(partTimerDTO.getDeviceName());
 
+        final String DEFAULT_IMAGE_URL = "https://core-erp-frontend.s3.ap-northeast-2.amazonaws.com/defaults/profile-default.png";
+
         String uploadedPath = uploadFile(partTimerDTO.getFile());
-        if (uploadedPath != null) {
-            entity.setPartImg(uploadedPath);
-        }
+        entity.setPartImg(uploadedPath != null ? uploadedPath : DEFAULT_IMAGE_URL);
 
         partTimerRepository.save(entity);
     }
@@ -163,9 +165,19 @@ public class PartTimeService {
         entity.setDeviceId(partTimerDTO.getDeviceId());
         entity.setDeviceName(partTimerDTO.getDeviceName());
 
+        // 새 이미지가 업로드된 경우에만 처리
         if (partTimerDTO.getFile() != null && !partTimerDTO.getFile().isEmpty()) {
-            String uploadedPath = uploadFile(partTimerDTO.getFile());
-            entity.setPartImg(uploadedPath);
+            // 기존 이미지 경로 저장
+            String oldImage = entity.getPartImg();
+
+            // 새 이미지 업로드
+            String newImage = uploadFile(partTimerDTO.getFile());
+            entity.setPartImg(newImage);
+
+            // 이전 이미지 삭제 (기본 이미지 제외)
+            if (oldImage != null && !oldImage.contains("default")) {
+                s3Uploader.delete(oldImage);
+            }
         }
     }
 
@@ -178,36 +190,41 @@ public class PartTimeService {
                 !Objects.equals(entity.getStore().getStoreId(), storeId)) {
             throw new RuntimeException("본인 지점의 아르바이트만 삭제할 수 있습니다.");
         }
+        // 1. 출결 기록 먼저 삭제
+        attendanceRepository.deleteAllByPartTimer(entity);
 
+
+        // 2. 이미지 삭제 (기본 이미지 제외)
+        String partImg = entity.getPartImg();
+        if (partImg != null && !partImg.contains("default")) {
+            s3Uploader.delete(partImg);
+        }
+
+        // 3. 아르바이트 삭제
         partTimerRepository.delete(entity);
     }
 
     private String uploadFile(MultipartFile file) {
+        log.info("[PartTimeService] uploadFile 호출됨, file={}", file != null ? file.getOriginalFilename() : "null");
+
         if (file == null || file.isEmpty()) {
+            log.warn("[PartTimeService] 파일이 null 또는 비어있어 업로드 생략됨");
             return null;
         }
 
         try {
-            File uploadFolder = new File(uploadDir);
-            if (!uploadFolder.exists()) {
-                uploadFolder.mkdirs();
-            }
-
-            String originalFilename = file.getOriginalFilename();
-            String ext = originalFilename.substring(originalFilename.lastIndexOf("."));
-            String savedFilename = UUID.randomUUID().toString() + ext;
-            file.transferTo(new File(uploadDir + savedFilename));
-
-            return "/uploads/parttimer/" + savedFilename;
+            return s3Uploader.upload(file, "uploads/partTimer");
         } catch (IOException e) {
-            throw new RuntimeException("파일 업로드 실패", e);
+            throw new RuntimeException("S3 파일 업로드 실패", e);
         }
     }
+
+
 
     public List<PartTimerDTO> findAllByStore(Integer storeId, String role) {
         List<PartTimerEntity> entities;
 
-        if ("ROLE_HQ".equals(role)) {
+        if ("ROLE_MASTER".equals(role)) {
             // 본사는 전체 조회
             entities = partTimerRepository.findAll();
         } else {
