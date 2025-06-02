@@ -17,4 +17,8 @@ public interface DisposalRepository extends JpaRepository<DisposalEntity, Intege
     );
 
     List<DisposalEntity> findByStoreStock_Store_StoreIdOrderByDisposalDateDesc(Integer storeId);
+
+    List<DisposalEntity> findByStoreStock_Store_StoreIdAndProduct_ProNameContainingAndDisposalDateBetweenOrderByDisposalDateDesc(
+            Integer storeId, String keyword, LocalDateTime start, LocalDateTime end
+    );
 }

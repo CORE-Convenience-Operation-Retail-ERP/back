@@ -5,6 +5,7 @@ import com.core.erp.dto.disposal.DisposalDTO;
 import com.core.erp.dto.disposal.DisposalTargetDTO;
 import com.core.erp.service.DisposalService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,6 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/erp/disposal")
 @RequiredArgsConstructor
+@Slf4j
 public class DisposalController {
 
     private final DisposalService disposalService;
@@ -25,17 +27,42 @@ public class DisposalController {
     public ResponseEntity<List<DisposalTargetDTO>> getExpiredItems(
             @AuthenticationPrincipal CustomPrincipal principal
     ) {
+        log.info("🔍 [폐기 대상 조회] 사용자 정보 - empId: {}, deptId: {}, storeId: {}, role: {}", 
+                principal.getEmpId(), principal.getDeptId(), principal.getStoreId(), principal.getRole());
+        
         Integer storeId = principal.getStoreId();
-        List<DisposalTargetDTO> expired = disposalService.getExpiredStocksByStore(storeId);
+        List<DisposalTargetDTO> expired;
+        
+        if (storeId == null) {
+            log.warn("⚠️ [폐기 대상 조회] storeId가 null이므로 전체 데이터를 조회합니다.");
+            expired = disposalService.getExpiredStocks(); // 전체 조회
+        } else {
+            expired = disposalService.getExpiredStocksByStore(storeId); // 점포별 조회
+        }
+        
+        log.info("✅ [폐기 대상 조회] storeId: {}, 조회된 데이터 수: {}", storeId, expired.size());
         return ResponseEntity.ok(expired);
     }
 
     // 폐기 내역 조회
     @GetMapping("/history")
     public ResponseEntity<List<DisposalDTO>> getDisposalHistory(
-            @RequestParam("storeId") Integer storeId
+            @AuthenticationPrincipal CustomPrincipal principal
     ) {
-        List<DisposalDTO> history = disposalService.getDisposalsByStore(storeId);
+        log.info("🔍 [폐기 내역 조회] 사용자 정보 - empId: {}, deptId: {}, storeId: {}, role: {}", 
+                principal.getEmpId(), principal.getDeptId(), principal.getStoreId(), principal.getRole());
+        
+        Integer storeId = principal.getStoreId();
+        List<DisposalDTO> history;
+        
+        if (storeId == null) {
+            log.warn("⚠️ [폐기 내역 조회] storeId가 null이므로 전체 데이터를 조회합니다.");
+            history = disposalService.getAllDisposals(); // 전체 조회
+        } else {
+            history = disposalService.getDisposalsByStore(storeId); // 점포별 조회
+        }
+        
+        log.info("✅ [폐기 내역 조회] storeId: {}, 조회된 데이터 수: {}", storeId, history.size());
         return ResponseEntity.ok(history);
     }
 
@@ -44,9 +71,11 @@ public class DisposalController {
     public ResponseEntity<List<DisposalDTO>> searchDisposals(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate start,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end,
+            @AuthenticationPrincipal CustomPrincipal principal
     ) {
-        List<DisposalDTO> results = disposalService.searchDisposals(keyword, start, end);
+        Integer storeId = principal.getStoreId();
+        List<DisposalDTO> results = disposalService.searchDisposalsByStore(keyword, start, end, storeId);
         return ResponseEntity.ok(results);
     }
 
