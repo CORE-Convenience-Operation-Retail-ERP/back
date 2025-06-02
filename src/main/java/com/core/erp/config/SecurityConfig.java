@@ -209,8 +209,8 @@ public class SecurityConfig {
                                 "/api/public/attendance/part-timer/**",
                                 "/api/public/send-code",
                                 "/api/public/verify-device",
-                                "api/public/is-verified",
-                                "api/public/verified-device",
+                                "/api/public/is-verified",
+                                "/api/public/verified-device",
                                 "/api/public/**"
                         ).permitAll() // 모든 사용자 접근 허용
 

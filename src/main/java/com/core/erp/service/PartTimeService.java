@@ -215,6 +215,7 @@ public class PartTimeService {
         try {
             return s3Uploader.upload(file, "uploads/partTimer");
         } catch (IOException e) {
+            log.error("❌ S3 업로드 중 오류 발생", e);
             throw new RuntimeException("S3 파일 업로드 실패", e);
         }
     }

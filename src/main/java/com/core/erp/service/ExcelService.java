@@ -80,7 +80,7 @@ public class ExcelService {
 
             // 헤더 생성
             Row headerRow = sheet.createRow(0);
-            String[] headers = {"상품ID", "상품명", "바코드", "매장명", "매장재고", "창고재고", "총재고", "최근입고일", "프로모션상태"};
+            String[] headers = {"상품ID", "상품명", "바코드", "매장명", "진열재고", "창고재고", "매장재고", "최근입고일", "프로모션상태"};
             
             for (int i = 0; i < headers.length; i++) {
                 Cell cell = headerRow.createCell(i);

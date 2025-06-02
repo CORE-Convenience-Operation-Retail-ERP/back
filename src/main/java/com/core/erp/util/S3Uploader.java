@@ -39,6 +39,7 @@ public class S3Uploader {
 
     @PostConstruct
     public void init() {
+        log.info("🧾 S3 config 확인 → accessKey={}, region={}, bucket={}", accessKey, region, bucket);
         AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
         s3Client = S3Client.builder()
                 .region(Region.of(region))
@@ -59,7 +60,7 @@ public class S3Uploader {
                 .bucket(bucket)
                 .key(key)
                 .contentType(file.getContentType())
-                .acl(ObjectCannedACL.PUBLIC_READ)
+//                .acl(ObjectCannedACL.PUBLIC_READ)
                 .build();
 
         s3Client.putObject(putRequest, RequestBody.fromBytes(file.getBytes()));

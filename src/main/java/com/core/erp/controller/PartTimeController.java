@@ -42,8 +42,14 @@ public class PartTimeController {
     // 현재 로그인한 사용자 정보 추출
     private CustomPrincipal getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
+            return null;
+        }
+
         return (CustomPrincipal) auth.getPrincipal();
     }
+
 
     // (1) 검색 조회
     @GetMapping("/store/parttimer/search")

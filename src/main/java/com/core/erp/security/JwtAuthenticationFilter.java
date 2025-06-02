@@ -30,6 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/api/auth/check-email",
             "/api/auth/send-verification-email",  // 이메일 인증 코드 발송
             "/api/auth/verify-email",             // 이메일 인증 코드 확인
+            "/api/public/**",
             "/ws",                                // WebSocket 엔드포인트
             "/ws/**"                              // WebSocket 하위 경로
     );
