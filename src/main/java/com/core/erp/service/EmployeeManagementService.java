@@ -133,6 +133,24 @@ public class EmployeeManagementService {
         entity.setEmpPhone(dto.getEmpPhone());
         entity.setLoginId(dto.getEmpEmail()); // 이메일을 로그인 ID로 사용
         
+        // 프로필 이미지 설정
+        if (dto.getEmpImg() != null) {
+            entity.setEmpImg(dto.getEmpImg());
+        }
+        
+        // 은행/계좌번호 설정
+        if (dto.getEmpBank() != null) {
+            entity.setEmpBank(dto.getEmpBank());
+        } else {
+            entity.setEmpBank(0); // 기본값
+        }
+        
+        if (dto.getEmpAcount() != null) {
+            entity.setEmpAcount(dto.getEmpAcount());
+        } else {
+            entity.setEmpAcount("000000000000"); // 기본값
+        }
+        
         // 주소 설정
         if (dto.getEmpAddr() != null) {
             entity.setEmpAddr(dto.getEmpAddr());
@@ -196,8 +214,6 @@ public class EmployeeManagementService {
             entity.setEmpGender(0); // 기본값
             entity.setEmpBirth(""); // 기본값
             entity.setLoginPwd("defaultPassword"); // 기본 비밀번호
-            entity.setEmpBank(0); // 기본값
-            entity.setEmpAcount(""); // 기본값
             entity.setWorkType(1); // 기본값
         }
         
@@ -219,6 +235,20 @@ public class EmployeeManagementService {
         
         if (dto.getEmpEmail() != null) {
             entity.setLoginId(dto.getEmpEmail());
+        }
+        
+        // 프로필 이미지 업데이트 추가
+        if (dto.getEmpImg() != null) {
+            entity.setEmpImg(dto.getEmpImg());
+        }
+        
+        // 은행/계좌번호 업데이트 추가
+        if (dto.getEmpBank() != null) {
+            entity.setEmpBank(dto.getEmpBank());
+        }
+        
+        if (dto.getEmpAcount() != null) {
+            entity.setEmpAcount(dto.getEmpAcount());
         }
         
         // 주소 업데이트
@@ -335,6 +365,13 @@ public class EmployeeManagementService {
         dto.setEmpPhone(entity.getEmpPhone());
         dto.setEmpEmail(entity.getLoginId());
         
+        // 프로필 이미지 설정 추가
+        dto.setEmpImg(entity.getEmpImg());
+        
+        // 은행/계좌번호 설정 추가
+        dto.setEmpBank(entity.getEmpBank());
+        dto.setEmpAcount(entity.getEmpAcount());
+        
         // 주소 설정
         if (entity.getEmpAddr() != null) {
             dto.setEmpAddr(entity.getEmpAddr());
@@ -395,6 +432,9 @@ public class EmployeeManagementService {
         dto.setEmpPhone(listDTO.getEmpPhone() != null ? listDTO.getEmpPhone() : "");
         dto.setEmpEmail(listDTO.getEmpEmail() != null ? listDTO.getEmpEmail() : "");
         dto.setEmpExt(listDTO.getEmpExt() != null ? listDTO.getEmpExt() : "");
+        
+        // 프로필 이미지 설정 추가
+        dto.setEmpImg(listDTO.getEmpImg());
         
         // 주소 정보 설정
         dto.setEmpAddr(listDTO.getEmpAddr() != null ? listDTO.getEmpAddr() : "");

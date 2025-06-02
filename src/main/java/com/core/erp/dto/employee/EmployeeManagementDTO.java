@@ -25,6 +25,10 @@ public class EmployeeManagementDTO {
     private String empImg;
     private String empAddr;
 
+    // 은행/계좌번호 필드 추가
+    private Integer empBank;
+    private String empAcount;
+
     // 프론트엔드와 호환을 위한 추가 필드
     private String deptName;
 

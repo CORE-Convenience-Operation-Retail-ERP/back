@@ -47,6 +47,10 @@ public class AttendanceInfoController {
         // 사원 정보 DTO 변환
         EmployeeDTO employeeDTO = new EmployeeDTO(emp);
 
+        System.out.println("사원 이미지 정보:");
+        System.out.println("- 원본 empImg: " + emp.getEmpImg());
+        System.out.println("- DTO empImg: " + employeeDTO.getEmpImg());
+
         // 응답 데이터 구성
         Map<String, Object> response = new HashMap<>();
 

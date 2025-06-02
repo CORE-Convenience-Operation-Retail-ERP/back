@@ -283,4 +283,80 @@ public class EmployeeManagementController {
                     .body("이미지 업로드에 실패했습니다: " + e.getMessage());
         }
     }
+
+    /**
+     * 통합 직원 정보 조회 API (본사/점주 구분)
+     */
+    @GetMapping("/api/employee-unified/{empId}")
+    public ResponseEntity<EmployeeManagementDTO> getEmployeeUnified(
+            @PathVariable Integer empId,
+            @RequestParam String type) {
+        try {
+            System.out.println("통합 직원 정보 조회 API 호출: empId=" + empId + ", type=" + type);
+            EmployeeManagementDTO employee = employeeManagementService.getEmployeeById(empId);
+            
+            // 타입에 따른 추가 처리
+            if ("STORE".equals(type) && employee != null) {
+                // 점주 관련 필드가 누락된 경우 기본값 설정
+                if (employee.getStoreName() == null || employee.getStoreName().isEmpty()) {
+                    employee.setStoreName(employee.getEmpName() + "의 매장");
+                }
+                if (employee.getStoreAddr() == null || employee.getStoreAddr().isEmpty()) {
+                    employee.setStoreAddr(employee.getEmpAddr());
+                }
+                if (employee.getStoreTel() == null || employee.getStoreTel().isEmpty()) {
+                    employee.setStoreTel("02-" + (1000 + empId) + "-" + (2000 + empId));
+                }
+            }
+            
+            return ResponseEntity.ok(employee);
+        } catch (Exception e) {
+            System.err.println("통합 직원 정보 조회 중 오류: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
+        }
+    }
+
+    /**
+     * 통합 직원 정보 생성 API (본사/점주 구분)
+     */
+    @PostMapping("/api/employee-unified")
+    public ResponseEntity<EmployeeManagementDTO> createEmployeeUnified(
+            @RequestBody EmployeeManagementDTO employeeDTO,
+            @RequestParam String type) {
+        try {
+            System.out.println("통합 직원 정보 생성 API 호출: type=" + type);
+            employeeDTO.setEmpRole(type); // HQ 또는 STORE
+            EmployeeManagementDTO createdEmployee = employeeManagementService.createEmployee(employeeDTO);
+            return ResponseEntity.ok(createdEmployee);
+        } catch (Exception e) {
+            System.err.println("통합 직원 정보 생성 중 오류: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
+        }
+    }
+
+    /**
+     * 통합 직원 정보 수정 API (본사/점주 구분)
+     */
+    @PutMapping("/api/employee-unified/{empId}")
+    public ResponseEntity<EmployeeManagementDTO> updateEmployeeUnified(
+            @PathVariable Integer empId,
+            @RequestBody EmployeeManagementDTO employeeDTO,
+            @RequestParam String type) {
+        try {
+            System.out.println("통합 직원 정보 수정 API 호출: empId=" + empId + ", type=" + type);
+            employeeDTO.setEmpId(empId);
+            employeeDTO.setEmpRole(type); // HQ 또는 STORE
+            EmployeeManagementDTO updatedEmployee = employeeManagementService.updateEmployee(employeeDTO);
+            return ResponseEntity.ok(updatedEmployee);
+        } catch (Exception e) {
+            System.err.println("통합 직원 정보 수정 중 오류: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
+        }
+    }
 } 

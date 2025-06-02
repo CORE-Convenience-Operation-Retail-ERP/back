@@ -186,6 +186,9 @@ public class EmployeeListService {
                     // 주소 정보 설정
                     dto.setEmpAddr(e.getEmpAddr() != null ? e.getEmpAddr() : "");
                     
+                    // 프로필 이미지 설정 추가
+                    dto.setEmpImg(e.getEmpImg());
+                    
                     // 매장 정보 설정 (점주의 경우)
                     if (e.getStore() != null) {
                         dto.setStoreId((long) e.getStore().getStoreId());
@@ -243,6 +246,9 @@ public class EmployeeListService {
             
             // 주소 정보 설정
             dto.setEmpAddr(e.getEmpAddr() != null ? e.getEmpAddr() : "");
+            
+            // 프로필 이미지 설정 추가
+            dto.setEmpImg(e.getEmpImg());
             
             // 매장 정보 설정 (점주의 경우)
             if (e.getStore() != null) {

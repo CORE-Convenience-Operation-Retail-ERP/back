@@ -16,6 +16,7 @@ public class EmployeeListDTO {
     private String empPhone;
     private String empExt;
     private String empAddr;
+    private String empImg;
     // 매장 정보 필드 추가
     private Long storeId;
     private String storeName;
