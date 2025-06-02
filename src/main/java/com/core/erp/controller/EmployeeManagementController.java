@@ -10,9 +10,12 @@ import com.core.erp.repository.EmployeeRepository;
 import com.core.erp.repository.PartTimerRepository;
 import com.core.erp.repository.StoreRepository;
 import com.core.erp.service.EmployeeManagementService;
+import com.core.erp.service.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -28,6 +31,7 @@ public class EmployeeManagementController {
     private final EmployeeRepository employeeRepository;
     private final DepartmentRepository departmentRepository;
     private final PartTimerRepository partTimerRepository;
+    private final S3Service s3Service;
 
     // 직원 관리 API
     @GetMapping("/api/employee-management/{empId}")
@@ -242,5 +246,41 @@ public class EmployeeManagementController {
         
         System.out.println("점주 미지정 매장 목록 조회 결과: " + result);
         return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 직원 프로필 이미지 업로드
+     */
+    @PostMapping("/api/employee-management/{empId}/upload-image")
+    public ResponseEntity<?> uploadEmployeeImage(
+            @PathVariable Integer empId,
+            @RequestParam("file") MultipartFile file) {
+        try {
+            if (file == null || file.isEmpty()) {
+                return ResponseEntity.badRequest().body("파일이 비어있습니다.");
+            }
+            
+            // 직원 정보 조회
+            EmployeeEntity employee = employeeRepository.findById(empId)
+                    .orElseThrow(() -> new RuntimeException("직원 정보를 찾을 수 없습니다."));
+            
+            // 폴더 결정 (점주면 business-license, 아니면 profile)
+            String folder = "점주".equals(employee.getEmpRole()) ? "business-license" : "profile";
+            
+            // S3에 이미지 업로드
+            String imageUrl = s3Service.uploadImage(file, folder);
+            
+            // 직원 정보 업데이트
+            employee.setEmpImg(imageUrl);
+            employeeRepository.save(employee);
+            
+            Map<String, String> response = new HashMap<>();
+            response.put("imageUrl", imageUrl);
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("이미지 업로드에 실패했습니다: " + e.getMessage());
+        }
     }
 } 
