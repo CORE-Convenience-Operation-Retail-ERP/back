@@ -1,11 +1,13 @@
 package com.core.erp.controller;
 
+import com.core.erp.dto.CustomPrincipal;
 import com.core.erp.dto.disposal.DisposalDTO;
 import com.core.erp.dto.disposal.DisposalTargetDTO;
 import com.core.erp.service.DisposalService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -20,15 +22,20 @@ public class DisposalController {
 
     // 폐기 대상 자동 조회 API
     @GetMapping("/expired")
-    public ResponseEntity<List<DisposalTargetDTO>> getExpiredItems() {
-        List<DisposalTargetDTO> expired = disposalService.getExpiredStocks();
+    public ResponseEntity<List<DisposalTargetDTO>> getExpiredItems(
+            @AuthenticationPrincipal CustomPrincipal principal
+    ) {
+        Integer storeId = principal.getStoreId();
+        List<DisposalTargetDTO> expired = disposalService.getExpiredStocksByStore(storeId);
         return ResponseEntity.ok(expired);
     }
 
     // 폐기 내역 조회
     @GetMapping("/history")
-    public ResponseEntity<List<DisposalDTO>> getDisposalHistory() {
-        List<DisposalDTO> history = disposalService.getAllDisposals();
+    public ResponseEntity<List<DisposalDTO>> getDisposalHistory(
+            @RequestParam("storeId") Integer storeId
+    ) {
+        List<DisposalDTO> history = disposalService.getDisposalsByStore(storeId);
         return ResponseEntity.ok(history);
     }
 

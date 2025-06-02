@@ -1,6 +1,7 @@
 package com.core.erp.dto.disposal;
 
 import com.core.erp.domain.DisposalEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -16,7 +17,10 @@ public class DisposalDTO {
     private Integer stockId; // FK (id만 관리)
     private Integer productId;
     private String proName;
+    
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime disposalDate;
+    
     private int disposalQuantity;
     private String processedBy;
     private int totalLossAmount;

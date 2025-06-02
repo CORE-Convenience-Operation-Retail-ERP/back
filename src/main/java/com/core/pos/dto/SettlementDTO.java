@@ -3,6 +3,7 @@ package com.core.pos.dto;
 import com.core.pos.domain.SalesSettlementEntity;
 import com.core.pos.domain.SalesSettlementEntity.HqStatus;
 import com.core.pos.domain.SalesSettlementEntity.SettlementType;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -24,7 +25,10 @@ public class SettlementDTO {
     private LocalDate startDate;
     private LocalDate endDate;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime shiftStartTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime shiftEndTime;
 
     private Integer totalRevenue;
@@ -39,8 +43,10 @@ public class SettlementDTO {
     private Integer isManual;
     private LocalDateTime hqSentAt;
     private HqStatus hqStatus;
-
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime createdAt;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime updatedAt;
 
     // 변환용 정적 팩토리 메서드

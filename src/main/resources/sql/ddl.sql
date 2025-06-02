@@ -158,28 +158,48 @@ CREATE TABLE `disposal` (
                             FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`)  -- product와 연결
 );
 
+CREATE TABLE category_sales_stats (
+                                      category_sales_stats_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '카테고리별 매출 통계 고유 ID',
+                                      store_id INT NOT NULL COMMENT '매장 고유 ID',
+                                      category_id INT NOT NULL COMMENT '상품 카테고리 ID',
+                                      stat_date DATE NOT NULL COMMENT '매출 통계 기준 일자',
+                                      total_quantity INT NOT NULL DEFAULT 0 COMMENT '카테고리 내 총 판매 수량',
+                                      total_sales INT NOT NULL DEFAULT 0 COMMENT '카테고리 내 총 매출 금액',
+                                      created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '데이터 생성 시각',
+
+                                      UNIQUE KEY uq_store_category_date (store_id, category_id, stat_date),
+                                      FOREIGN KEY (store_id) REFERENCES store(store_id),
+                                      FOREIGN KEY (category_id) REFERENCES category(category_id)
+);
+
+
+
+
 
 CREATE TABLE `sales_hourly` (
-                                `sales_hourly_id` int NOT NULL COMMENT '시간대별 매출통계 고유번호',
-                                `store_id` int NOT NULL COMMENT '매장고유번호',
-                                `sho_date` date NOT NULL COMMENT '기준 날짜',
-                                `sho_hour` tinyint NOT NULL COMMENT '0-23시(24시간 기준)',
-                                `sho_quantity` int NOT NULL DEFAULT 0 COMMENT '해당 시간에 판매된 수량',
-                                `sho_total` int NOT NULL DEFAULT 0 COMMENT '해당 시간대 총 매출액',
-                                `created_at` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '데이터 생성 시간',
+                                `sales_hourly_id` INT NOT NULL COMMENT '시간대별 매출통계 고유번호',
+                                `store_id` INT NOT NULL COMMENT '매장고유번호',
+                                `sho_date` DATE NOT NULL COMMENT '기준 날짜',
+                                `sho_hour` TINYINT NOT NULL COMMENT '0-23시(24시간 기준)',
+                                `sho_quantity` INT NOT NULL DEFAULT 0 COMMENT '해당 시간에 판매된 수량',
+                                `sho_total` INT NOT NULL DEFAULT 0 COMMENT '해당 시간대 총 매출액',
+                                `created_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP COMMENT '데이터 생성 시간',
                                 PRIMARY KEY (`sales_hourly_id`),
+                                UNIQUE KEY `uq_store_hourly` (`store_id`, `sho_date`, `sho_hour`),
                                 FOREIGN KEY (`store_id`) REFERENCES `store` (`store_id`)
 );
+
 
 CREATE TABLE `sales_stats` (
                                `sales_stats_id` int NOT NULL COMMENT '통계 고유 번호',
                                `store_id` int NOT NULL COMMENT '매장고유번호',
-                               `product_id` int NOT NULL COMMENT 'autoincrement',
+                               `product_id` int NOT NULL COMMENT '상품 고유 번호',
                                `sst_date` date NOT NULL COMMENT '해당 매출 날짜',
                                `sst_quantity` int NOT NULL DEFAULT 0 COMMENT '해당 날짜에 판매된 수량',
                                `sst_total` int NOT NULL DEFAULT 0 COMMENT '해당 날짜 매출 총액',
                                `created_at` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '데이터 생성 시간',
                                PRIMARY KEY (`sales_stats_id`),
+                               UNIQUE KEY `uq_store_product_date` (`store_id`, `product_id`, `sst_date`),
                                FOREIGN KEY (`store_id`) REFERENCES `store` (`store_id`),
                                FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`)
 );
@@ -292,6 +312,7 @@ CREATE TABLE `order_stats` (
                                `ostats_total` int NOT NULL DEFAULT 0 COMMENT '총 발주된 금액',
                                `created_at` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '데이터 생성 시간',
                                PRIMARY KEY (`ostats_id`),
+                               UNIQUE KEY `uq_store_product_date` (`store_id`, `product_id`, `ostats_date`),
                                FOREIGN KEY (`store_id`) REFERENCES `store` (`store_id`),
                                FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`)
 );

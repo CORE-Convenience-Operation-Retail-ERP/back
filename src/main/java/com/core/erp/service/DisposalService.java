@@ -22,11 +22,21 @@ public class DisposalService {
     private final StoreStockRepository storeStockRepository;
     private final DisposalRepository disposalRepository;
 
-    // 폐기 대상 재고 조회 (유통기한 지난 것)
+    // 유통기한 지난 재고 전체 조회
     public List<DisposalTargetDTO> getExpiredStocks() {
         List<DisposalTargetProjection> results = storeStockRepository.findExpiredDisposals();
+        return mapToDTO(results);
+    }
 
-        return results.stream()
+    // 매장별 유통기한 지난 재고 조회
+    public List<DisposalTargetDTO> getExpiredStocksByStore(Integer storeId) {
+        List<DisposalTargetProjection> results = storeStockRepository.findExpiredDisposalsByStore(storeId);
+        return mapToDTO(results);
+    }
+
+    // 공통 DTO 매핑 함수
+    private List<DisposalTargetDTO> mapToDTO(List<DisposalTargetProjection> projections) {
+        return projections.stream()
                 .map(p -> new DisposalTargetDTO(
                         p.getStockId(),
                         p.getProductId(),
@@ -38,15 +48,16 @@ public class DisposalService {
                 .collect(Collectors.toList());
     }
 
-    // 폐기 내역 전체 조회 (정렬 포함)
-    public List<DisposalDTO> getAllDisposals() {
-        List<DisposalEntity> disposals = disposalRepository.findAllByOrderByDisposalDateDesc();
+    // 매장별 폐기 내역 조회
+    public List<DisposalDTO> getDisposalsByStore(Integer storeId) {
+        List<DisposalEntity> disposals = disposalRepository
+                .findByStoreStock_Store_StoreIdOrderByDisposalDateDesc(storeId);
         return disposals.stream()
                 .map(DisposalDTO::new)
                 .collect(Collectors.toList());
     }
 
-    // 특정 조건으로 폐기 내역 필터링
+    // 키워드 & 날짜 조건 검색
     public List<DisposalDTO> searchDisposals(String keyword, LocalDate start, LocalDate end) {
         LocalDateTime startDateTime = (start != null) ? start.atStartOfDay() : LocalDate.MIN.atStartOfDay();
         LocalDateTime endDateTime = (end != null) ? end.atTime(23, 59, 59) : LocalDate.MAX.atTime(23, 59, 59);
@@ -61,12 +72,17 @@ public class DisposalService {
                 .collect(Collectors.toList());
     }
 
+    // 폐기 취소 처리
     @Transactional
     public void cancelDisposal(int disposalId) {
         DisposalEntity disposal = disposalRepository.findById(disposalId)
                 .orElseThrow(() -> new IllegalArgumentException("폐기 내역을 찾을 수 없습니다."));
 
+        Long productId = Long.valueOf(disposal.getProduct().getProductId());
+        Integer storeId = disposal.getStoreStock().getStore().getStoreId();
+        int qty = disposal.getDisposalQuantity();
+
+        storeStockRepository.increaseQuantityAndUpdateDate(productId, storeId, qty);
         disposalRepository.delete(disposal);
     }
-
 }

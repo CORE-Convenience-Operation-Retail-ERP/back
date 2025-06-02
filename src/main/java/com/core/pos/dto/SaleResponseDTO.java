@@ -1,6 +1,7 @@
 package com.core.pos.dto;
 
 import com.core.erp.domain.SalesTransactionEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -19,7 +20,10 @@ public class SaleResponseDTO {
     private Integer discountTotal;
     private Integer finalAmount;
     private String paymentMethod;
+    
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime paidAt;
+    
     private Integer transactionStatus;
 
     public SaleResponseDTO(SalesTransactionEntity entity) {

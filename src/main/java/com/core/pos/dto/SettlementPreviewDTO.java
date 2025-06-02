@@ -1,5 +1,6 @@
 package com.core.pos.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -10,6 +11,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 public class SettlementPreviewDTO {
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
     private LocalDate settlementDate;
     private String settlementType;
     private Integer isManual;

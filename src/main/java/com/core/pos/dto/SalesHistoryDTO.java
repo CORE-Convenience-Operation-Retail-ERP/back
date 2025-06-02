@@ -2,6 +2,7 @@ package com.core.pos.dto;
 
 import com.core.erp.domain.SalesTransactionEntity;
 import com.core.erp.dto.sales.SalesDetailDTO;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -17,12 +18,16 @@ public class SalesHistoryDTO {
     private Integer transactionId;
     private String paymentMethod;
     private Integer finalAmount;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime paidAt;
 
     // 환불 관련 필드
     private Integer transactionStatus;
     private Integer refundAmount;
     private String refundReason;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime refundedAt;
 
     // 상품 요약 정보

@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS `sales_settlement`;
 DROP TABLE IF EXISTS `stock_in_history`;
 DROP TABLE IF EXISTS `purchase_order_item`;
 DROP TABLE IF EXISTS `sales_stats`;
+DROP TABLE IF EXISTS `category_sales_stats`;
 DROP TABLE IF EXISTS `store_stock`;
 DROP TABLE IF EXISTS `order_stats`;
 DROP TABLE IF EXISTS `demand_prediction`;
