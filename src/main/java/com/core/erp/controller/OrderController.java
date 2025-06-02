@@ -35,12 +35,14 @@ public class OrderController {
             @RequestParam(required = false) Integer categoryId,
             @RequestParam(required = false) Integer isPromo,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "productName") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir
     ) {
-        log.info("📌 [Controller] storeId: {}, productName: {}, barcode: {}, categoryId: {}, isPromo: {}, page: {}, size: {}",
-                storeId, productName, barcode, categoryId, isPromo, page, size);
+        log.info("📌 [Controller] storeId: {}, productName: {}, barcode: {}, categoryId: {}, isPromo: {}, page: {}, size: {}, sortBy: {}, sortDir: {}",
+                storeId, productName, barcode, categoryId, isPromo, page, size, sortBy, sortDir);
 
-        Integer effectiveStoreId = "ROLE_HQ".equals(userDetails.getRole())
+        Integer effectiveStoreId = "ROLE_MASTER".equals(userDetails.getRole())
                 ? storeId
                 : userDetails.getStoreId();
 
@@ -49,11 +51,12 @@ public class OrderController {
         }
 
         Page<OrderProductResponseDTO> result = orderService.getOrderProductList(
-                effectiveStoreId, productName, barcode, categoryId, isPromo, page, size
+                effectiveStoreId, productName, barcode, categoryId, isPromo, page, size, sortBy, sortDir
         );
 
         return ResponseEntity.ok(result);
     }
+
 
 
 

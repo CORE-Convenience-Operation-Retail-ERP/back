@@ -409,7 +409,7 @@ CREATE TABLE `shift_schedule` (
                                   FOREIGN KEY (`part_timer_id`) REFERENCES `part_timer` (`part_timer_id`)
 );
 
-CREATE TABLE `Salary` (
+CREATE TABLE `salary` (
                           `salary_id` INT NOT NULL COMMENT '급여 고유 번호',
                           `emp_id` INT NULL COMMENT '사원 고유 번호',
                           `part_timer_id`	int	NULL	COMMENT '아르바이트 고유 ID',

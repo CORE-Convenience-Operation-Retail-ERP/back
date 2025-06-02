@@ -100,8 +100,6 @@ public class SecurityConfig {
             "/api/products/all",
             "/api/products/paged/**",
             // "/api/products/detail/**",
-            "/api/hq-stock",
-            "/api/hq-stock/**",
             "/api/headquarters/branches",
             "/api/headquarters/branches/**",
             "/api/headquarters/notice/**",
@@ -138,6 +136,8 @@ public class SecurityConfig {
             "/api/stock/**",
             "/api/stock-flow/**",
             "/api/products/**",
+            "/api/hq-stock",
+            "/api/hq-stock/**",
     };
 
 
@@ -164,13 +164,16 @@ public class SecurityConfig {
                     CorsConfiguration config = new CorsConfiguration();
                     // 명시적 도메인 목록 설정
                     config.setAllowedOrigins(List.of(
+                            "https://erp.corepos.store",
+                            "https://corepos.store",
+                            "https://api.corepos.store",
                             "http://localhost:3000",
                             "http://localhost:3001",
                             "http://localhost:8080",
                             "http://127.0.0.1:3000",
                             "http://127.0.0.1:3001",
                             "http://127.0.0.1:8080"
-                    )); // 특정 출처 허용
+                    )); // 운영 및 개발 도메인 허용
                     config.setAllowedMethods(List.of("GET","PATCH" ,"POST", "PUT", "DELETE", "OPTIONS")); // 허용할 HTTP 메서드
                     config.setAllowedHeaders(List.of("*")); // 모든 헤더 허용
                     config.setExposedHeaders(List.of("Authorization")); // 클라이언트에 노출할 헤더
@@ -203,6 +206,7 @@ public class SecurityConfig {
                                 "/ws/**"            // WebSocket 엔드포인트 허용
                         ).permitAll() // 모든 사용자 접근 허용
 
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // OPTIONS 메서드 모두 허용
 
                         .requestMatchers(HttpMethod.GET, HQ_COMMON_READ_PATHS).hasAnyRole("HQ", "HQ_HRM", "HQ_HRM_M", "HQ_PRO", "HQ_PRO_M", "HQ_BR", "HQ_BR_M","MASTER")
                         .requestMatchers(HttpMethod.GET, COMMON_READ_PATHS).hasAnyRole("HQ", "HQ_HRM", "HQ_HRM_M", "HQ_PRO", "HQ_PRO_M", "HQ_BR", "HQ_BR_M","STORE","MASTER")

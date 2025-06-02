@@ -11,7 +11,7 @@ DROP TABLE IF EXISTS `demand_prediction`;
 DROP TABLE IF EXISTS `appr_log`;
 DROP TABLE IF EXISTS `tbl_board_comments`;
 DROP TABLE IF EXISTS `dashboard_layout`;
-DROP TABLE IF EXISTS `Salary`;
+DROP TABLE IF EXISTS `salary`;
 DROP TABLE IF EXISTS `pw_reset_token`;
 DROP TABLE IF EXISTS `leave_req`;
 DROP TABLE IF EXISTS `tbl_board_posts`;

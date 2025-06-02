@@ -16,6 +16,8 @@ import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -42,6 +44,9 @@ public class ProductService {
 
     @Autowired
     private StockInventoryCheckItemRepository stockInventoryCheckItemRepository;
+
+    @Autowired
+    private S3Service s3Service;
 
     // 전체 제품 목록 (기존 메서드)
     public List<ProductDTO> getAllProducts() {
@@ -335,7 +340,6 @@ public class ProductService {
         productDetailsRepository.save(detail);
     }
 
-
     public int registerProduct(ProductRegisterRequestDTO dto) {
         // 필수값 체크
         if (dto.getProName() == null || dto.getProBarcode() == null || dto.getCategoryId() == null
@@ -357,16 +361,13 @@ public class ProductService {
         product.setCategory(categoryRepository.findById(dto.getCategoryId()).orElseThrow());
         product.setProCreatedAt(java.time.LocalDateTime.now());
 
-        // 이미지 파일 저장 (임시: /uploads/폴더에 저장, 실제 S3 연동 시 이 부분만 교체)
+        // S3에 이미지 파일 업로드
         if (dto.getProImage() != null && !dto.getProImage().isEmpty()) {
             try {
-                String uploadDir = "uploads/";
-                Files.createDirectories(Paths.get(uploadDir));
-                String fileName = System.currentTimeMillis() + "_" + dto.getProImage().getOriginalFilename();
-                Files.copy(dto.getProImage().getInputStream(), Paths.get(uploadDir + fileName), StandardCopyOption.REPLACE_EXISTING);
-                product.setProImage("/uploads/" + fileName);
+                String imageUrl = s3Service.uploadImage(dto.getProImage(), "products");
+                product.setProImage(imageUrl);
             } catch (Exception e) {
-                throw new RuntimeException("이미지 저장 실패");
+                throw new RuntimeException("이미지 업로드 실패: " + e.getMessage());
             }
         }
 
@@ -386,6 +387,54 @@ public class ProductService {
         }
 
         return product.getProductId();
+    }
+
+    /**
+     * 엑셀 다운로드용 상품 데이터 조회
+     */
+    public List<Map<String, Object>> getProductsForExcel(String categoryName, String productName, Integer isPromo) {
+        List<ProductEntity> products = productRepository.findAll(); // 실제로는 조건에 따른 필터링 로직 추가
+        
+        List<Map<String, Object>> result = new ArrayList<>();
+        
+        for (ProductEntity product : products) {
+            // 필터 조건 적용
+            if (categoryName != null && !categoryName.isEmpty() && 
+                !product.getCategory().getCategoryName().contains(categoryName)) {
+                continue;
+            }
+            
+            if (productName != null && !productName.isEmpty() && 
+                !product.getProName().contains(productName)) {
+                continue;
+            }
+            
+            if (isPromo != null && !product.getIsPromo().equals(isPromo)) {
+                continue;
+            }
+            
+            // 총 재고 계산 (StoreStock + WarehouseStock)
+            Integer storeStock = storeStockRepository.sumStockByProductId((long) product.getProductId());
+            if (storeStock == null) storeStock = 0;
+            
+            // WarehouseStock도 계산해야 하는데, 해당 메서드가 없으므로 일단 0으로 설정
+            int totalStock = storeStock; // + warehouseStock (나중에 추가)
+            
+            Map<String, Object> productData = new HashMap<>();
+            // ExcelService에서 기대하는 필드명으로 매핑
+            productData.put("productId", product.getProductId());
+            productData.put("productName", product.getProName()); // proName -> productName
+            productData.put("barcode", product.getProBarcode()); // proBarcode -> barcode
+            productData.put("categoryName", product.getCategory().getCategoryName());
+            productData.put("sellPrice", product.getProSellCost()); // proSellCost -> sellPrice
+            productData.put("costPrice", product.getProCost()); // proCost -> costPrice
+            productData.put("isPromo", product.getIsPromo().toString()); // String으로 변환
+            productData.put("regDate", product.getProCreatedAt()); // proCreatedAt -> regDate
+            
+            result.add(productData);
+        }
+        
+        return result;
     }
 
 }

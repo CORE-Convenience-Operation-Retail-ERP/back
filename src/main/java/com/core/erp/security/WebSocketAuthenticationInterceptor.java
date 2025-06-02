@@ -30,10 +30,10 @@ public class WebSocketAuthenticationInterceptor implements ChannelInterceptor {
         if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
             String token = getTokenFromHeader(accessor);
             
-            // 로그인 페이지에서는 토큰 없이 접근할 수 있도록 허용
+            // 토큰이 없는 경우 연결 거부
             if (token == null) {
-                System.out.println("웹소켓 연결 - 토큰 없음: 로그인 시도로 간주하고 허용");
-                return message;
+                System.out.println("웹소켓 연결 거부: 토큰 없음");
+                return null; // 토큰 없이는 웹소켓 연결 불허
             }
             
             if (jwtTokenProvider.validateToken(token)) {

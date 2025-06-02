@@ -6,16 +6,22 @@ import com.core.erp.dto.product.ProductDetailResponseDTO;
 import com.core.erp.dto.product.ProductUpdateRequestDTO;
 import com.core.erp.dto.product.ProductRegisterRequestDTO;
 import com.core.erp.service.ProductService;
+import com.core.erp.service.S3Service;
+import com.core.erp.service.ExcelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +31,12 @@ import java.util.Map;
 public class ProductController {
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private S3Service s3Service;
+
+    @Autowired
+    private ExcelService excelService;
 
     @GetMapping("/all")
     public List<ProductDTO> getAllProducts() {
@@ -52,12 +64,24 @@ public class ProductController {
         productService.updateProduct(id, dto);
     }
 
-    // 이미지 업로드 (임시: 파일을 받아서 URL 반환)
+    // S3에 이미지 업로드
     @PostMapping("/upload-image")
-    public String uploadImage(@RequestParam("file") MultipartFile file) {
-        // 실제로는 S3 업로드 등 구현, 지금은 public 폴더에 저장했다고 가정
-        // 예시: /product{id}.jpg
-        return "/product" + System.currentTimeMillis() + ".jpg";
+    public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
+        try {
+            if (file == null || file.isEmpty()) {
+                return ResponseEntity.badRequest().body("파일이 비어있습니다.");
+            }
+            
+            String imageUrl = s3Service.uploadImage(file, "products");
+            
+            Map<String, String> response = new HashMap<>();
+            response.put("imageUrl", imageUrl);
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("이미지 업로드에 실패했습니다: " + e.getMessage());
+        }
     }
 
     @PostMapping
@@ -73,6 +97,31 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("등록 실패");
         }
     }
-
-
+    
+    // 상품 목록 엑셀 다운로드
+    @GetMapping("/download/excel")
+    public ResponseEntity<byte[]> downloadProductsExcel(
+            @RequestParam(required = false) String categoryName,
+            @RequestParam(required = false) String productName,
+            @RequestParam(required = false) Integer isPromo) {
+        try {
+            List<Map<String, Object>> products = productService.getProductsForExcel(categoryName, productName, isPromo);
+            byte[] excelData = excelService.createProductExcel(products);
+            
+            String fileName = "상품목록_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + ".xlsx";
+            
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            headers.setContentDispositionFormData("attachment", fileName);
+            headers.setContentLength(excelData.length);
+            
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(excelData);
+            
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(("엑셀 다운로드에 실패했습니다: " + e.getMessage()).getBytes());
+        }
+    }
 }
